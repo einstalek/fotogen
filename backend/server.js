@@ -19,6 +19,17 @@ app.use(cors());
 
 app.use(express.json());
 
+if (process.env.NODE_ENV === 'production') {
+    // Will serve production assets
+    app.use(express.static('../build'));
+
+    // Will serve the index.html if the route isn't recognized
+    const path = require('path');
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
+}
+
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
