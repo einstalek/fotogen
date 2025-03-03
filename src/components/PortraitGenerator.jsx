@@ -42,7 +42,13 @@ const PortraitGenerator = () => {
     {id: 6, url: 'https://ai-portrait.s3.eu-central-1.amazonaws.com/input/Z4L9G1WTTMBXOP0454UM1LW8FOJ95D-20250301_120349.webp', name: ''}
   ];
 
-  let backendURI = import.meta.env.VITE_BACKEND_URI;
+  let backendURI;
+  if (import.meta.env.DEV) {
+    backendURI = import.meta.env.VITE_BACKEND_URI;
+  } 
+  else {
+    backendURI = '';  // Empty string for relative paths
+  }
 
   useEffect(() => {
     return () => {
