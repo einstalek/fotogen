@@ -119,7 +119,7 @@ const PortraitGenerator = () => {
   const uploadImageToServer = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    
+
     try {
       const response = await fetch(`${backendURI}/api/upload-image`, {
         method: 'POST',

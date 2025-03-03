@@ -12,23 +12,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-// app.use(cors({
-//     origin: process.env.FRONTEND_URL || "http://localhost:5173",
-//     credentials: true
-//   }));
 
 app.use(express.json());
-
-if (process.env.NODE_ENV === 'production') {
-    // Will serve production assets
-    app.use(express.static('../dist'));
-
-    // Will serve the index.html if the route isn't recognized
-    const path = require('path');
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'));
-    });
-}
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION,
@@ -137,6 +122,19 @@ app.get('/api/check-runpod-job/:id', async (req, res) => {
         res.status(500).json({ error: "Failed to check job status", details: error.message });
     }
 });
+
+
+if (process.env.NODE_ENV === 'production') {
+    // Will serve production assets
+    app.use(express.static('../dist'));
+
+    // Will serve the index.html if the route isn't recognized
+    const path = require('path');
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'));
+    });
+}
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
