@@ -21,12 +21,12 @@ app.use(express.json());
 
 if (process.env.NODE_ENV === 'production') {
     // Will serve production assets
-    app.use(express.static('../build'));
+    app.use(express.static('../dist'));
 
     // Will serve the index.html if the route isn't recognized
     const path = require('path');
     app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, '..', 'build', 'index.html'));
+        res.sendFile(path.resolve(__dirname, '..', 'dist', 'index.html'));
     });
 }
 
