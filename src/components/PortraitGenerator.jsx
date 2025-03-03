@@ -652,7 +652,17 @@ const PortraitGenerator = () => {
         
         {/* Footer */}
         <footer className="mt-8 text-center text-purple-200 text-sm opacity-70">
-          <p>© 2025 PortraitAI. All rights reserved.</p>
+          <p>© 2025 FotoGen </p>
+          <div className="mt-2 flex justify-center space-x-4">
+            <a 
+              href="https://www.linkedin.com/in/alexander-arganaidi/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="hover:text-purple-400 transition"
+            >
+              LinkedIn
+            </a>
+          </div>
         </footer>
       </div>
     </div>

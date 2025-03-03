@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "cd backend && npm install && cd .. && npm install",
+    "build": "vite build",
+    "install:all": "npm install && cd backend && npm install && cd ..",
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "concurrently \"cd backend && node server.js\" \"npm run dev\""
