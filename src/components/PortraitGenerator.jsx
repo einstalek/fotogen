@@ -32,6 +32,11 @@ const PortraitGenerator = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [progress, setProgress] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
+
+  const toggleSettings = () => {
+    setIsSettingsExpanded(!isSettingsExpanded);
+  };
 
   const templateOptions = [
     { id: 1, url: 'https://ai-portrait.s3.eu-central-1.amazonaws.com/input/B9SBQCEPQX8WRGVH5SAZEBTIKC7SCI-20250301_121014.webp', name: 'Professional Headshot' },
@@ -265,74 +270,85 @@ const PortraitGenerator = () => {
 
   const renderTemplateOptions = () => {
     return (
-      <div className="grid grid-cols-3 gap-3 mt-2">
-        {templateOptions.map((template) => (
-          <div 
-            key={template.id} 
-            className={`relative cursor-pointer rounded-lg overflow-hidden transition-all ${
-              selectedTemplate && selectedTemplate.id === template.id 
-                ? 'ring-4 ring-purple-500 transform scale-105' 
-                : 'hover:scale-105'
-            }`}
-            onClick={() => setSelectedTemplate(template)}
+      <div className="mb-5">
+        <h3 className="text-md font-medium text-white mb-2 flex items-center justify-between">
+          {selectedTemplate && (
+            <span className="text-xs bg-purple-500/30 px-2 py-1 rounded-full text-white">
+              Template Selected
+            </span>
+          )}
+        </h3>
+        
+        {/* Scrollable container with arrows */}
+        <div className="relative group">
+          {/* Left scroll arrow */}
+          <button 
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-20 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-l-md"
+            onClick={() => {
+              const container = document.getElementById('template-scroller');
+              container.scrollBy({ left: -220, behavior: 'smooth' });
+            }}
           >
-            <img 
-              src={template.url} 
-              alt={template.name}
-              className="w-full h-full h-32 object-cover"
-            />
-            {/* <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent">
-              <p className="absolute bottom-2 left-2 right-2 text-white text-xs font-medium text-center">
-                {template.name}
-              </p>
-            </div> */}
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          
+          {/* Scrollable container */}
+          <div 
+            id="template-scroller"
+            className="flex gap-3 overflow-x-auto py-2 px-4 scrollbar-hide snap-x"
+            style={{ 
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              scrollSnapType: 'x mandatory'
+            }}
+          >
+            {templateOptions.map((template) => (
+              <div 
+                key={template.id} 
+                className={`relative cursor-pointer rounded-lg overflow-hidden transition-all flex-shrink-0 w-52 snap-start ${
+                  selectedTemplate && selectedTemplate.id === template.id 
+                    ? 'ring-3 ring-purple-500 transform scale-105' 
+                    : 'hover:ring-2 hover:ring-purple-300'
+                }`}
+                onClick={() => setSelectedTemplate(template)}
+              >
+                <img 
+                  src={template.url} 
+                  alt={template.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
           </div>
-        ))}
+          
+          {/* Right scroll arrow */}
+          <button 
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-20 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-r-md"
+            onClick={() => {
+              const container = document.getElementById('template-scroller');
+              container.scrollBy({ left: 220, behavior: 'smooth' });
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        </div>
+        
+        {/* Add scrollbar hiding style */}
+        <style jsx>{`
+          #template-scroller::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+        
+        {/* Show message if no template is selected */}
+        {!selectedTemplate && (
+          <p className="text-sm text-purple-200 mt-2 text-center">
+            Select a template to control your portrait style
+          </p>
+        )}
       </div>
     );
   };
-
-
-
-  // const renderTemplatePreview = () => {
-  //   if (!templateUrl) {
-  //     return (
-  //       <div 
-  //         className="border-2 border-dashed border-purple-400 border-opacity-50 rounded-lg p-4 bg-white bg-opacity-5 cursor-pointer hover:bg-opacity-10 transition-all h-40 flex flex-col items-center justify-center"
-  //         onClick={() => templateInputRef.current.click()}
-  //       >
-  //         <Upload className="w-8 h-8 text-purple-300 mb-2" />
-  //         <p className="text-white text-sm">Upload template image</p>
-  //         <input 
-  //           type="file" 
-  //           accept="image/*" 
-  //           className="hidden"
-  //           ref={templateInputRef}
-  //           onChange={handleTemplateUpload}
-  //         />
-  //       </div>
-  //     );
-  //   }
-
-  //   return (
-  //     <div className="relative group">
-  //       <img 
-  //         src={templateUrl.preview} 
-  //         alt="Template" 
-  //         className="w-full max-h-80 rounded-md object-contain border border-purple-300"
-  //       />
-  //       <button 
-  //         onClick={() => {
-  //           URL.revokeObjectURL(templateUrl.preview);
-  //           setTemplateUrl('');
-  //         }}
-  //         className="absolute top-2 right-2 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-  //       >
-  //         <X size={16} className="text-white" />
-  //       </button>
-  //     </div>
-  //   );
-  // };
 
     const renderResult = () => {
     if (!resultImage) return null;
@@ -468,11 +484,11 @@ const PortraitGenerator = () => {
               {renderTemplateOptions()}
               
               {/* Show message if no template is selected */}
-              {!selectedTemplate && (
+              {/* {!selectedTemplate && (
                 <p className="text-sm text-purple-200 mt-2 text-center">
                   Select a photo to control your pose
                 </p>
-              )}
+              )} */}
             </div>
             
             {/* Reference photos section */}
@@ -545,18 +561,37 @@ const PortraitGenerator = () => {
             )}
           </div>
 
-          {/* Bottom section */}
-          <div className="bg-black bg-opacity-40 p-6 border-t border-white border-opacity-10">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center">
+         {/* Bottom section - Portrait Settings */}
+        <div className="bg-black bg-opacity-40 p-6 border-t border-white border-opacity-10">
+          {/* Clickable header */}
+          <div 
+            className="flex items-center justify-between cursor-pointer"
+            onClick={toggleSettings}
+          >
+            <h2 className="text-xl font-bold text-white flex items-center">
               <Sliders className="mr-2 text-purple-300" size={20} />
               Portrait Settings
             </h2>
-            
-            <div className="space-y-4">
+            <div className="p-2 rounded-full hover:bg-white/10 transition-colors">
+              {isSettingsExpanded ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-300">
+                  <path d="m18 15-6-6-6 6"/>
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-300">
+                  <path d="m6 9 6 6 6-6"/>
+                </svg>
+              )}
+            </div>
+          </div>
+          
+          {/* Collapsible content */}
+          {isSettingsExpanded && (
+            <div className="space-y-4 mt-4">
               <div>
                 <label className="block text-sm font-medium text-purple-200 mb-1">Describe your ideal portrait (optional)</label>
                 <textarea
-                  className="w-full p-3 border rounded-md bg-white bg-opacity-10 text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full p-3 rounded-md bg-purple-900/30 text-white text-sm border border-purple-500/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-600 focus:outline-none transition-all shadow-inner backdrop-blur-sm placeholder-purple-300/50"
                   rows="3"
                   placeholder="e.g., sharp focus, professional photo, soft warm lighting, dressed casually"
                   value={prompt}
@@ -567,7 +602,7 @@ const PortraitGenerator = () => {
               <div>
                 <label className="block text-sm font-medium text-purple-200 mb-1">What to avoid (optional)</label>
                 <textarea
-                  className="w-full p-3 border rounded-md bg-white bg-opacity-10 text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full p-3 rounded-md bg-purple-900/30 text-white text-sm border border-purple-500/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-600 focus:outline-none transition-all shadow-inner backdrop-blur-sm placeholder-purple-300/50"
                   rows="3"
                   placeholder="e.g., grinning, blurry"
                   value={negativePrompt}
@@ -576,13 +611,16 @@ const PortraitGenerator = () => {
               </div>
               
               <div className="grid grid-rows-3 gap-4">
+                {/* Resemblance slider with descriptive labels */}
                 <div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-2">
                     <label className="block text-sm font-medium text-purple-200">
                       Resemblance
                       <Tooltip text="Higher value preserves your identity more but may reduce naturalness." />
                     </label>
-                    <span className="text-xs bg-purple-500/30 px-2 py-1 rounded-full text-white">{resemblance}</span>
+                    <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
+                      {resemblance < 1 ? 'Subtle' : resemblance < 1.5 ? 'Balanced' : 'Strong'}
+                    </span>
                   </div>
                   <input
                     type="range"
@@ -591,17 +629,24 @@ const PortraitGenerator = () => {
                     step="0.1"
                     value={resemblance}
                     onChange={(e) => setResemblance(parseFloat(e.target.value))}
-                    className="w-full mt-2 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-purple-300">Less like you</span>
+                    <span className="text-xs text-purple-300">More like you</span>
+                  </div>
                 </div>
                 
+                {/* Template Strength slider with descriptive labels */}
                 <div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-2">
                     <label className="block text-sm font-medium text-purple-200">
                       Template Strength
                       <Tooltip text="Higher value increases conformity to the template composition." />
                     </label>
-                    <span className="text-xs bg-purple-500/30 px-2 py-1 rounded-full text-white">{strength}</span>
+                    <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
+                      {strength < 0.7 ? 'Minimal' : strength < 1.3 ? 'Moderate' : 'Maximum'}
+                    </span>
                   </div>
                   <input
                     type="range"
@@ -610,17 +655,24 @@ const PortraitGenerator = () => {
                     step="0.1"
                     value={strength}
                     onChange={(e) => setStrength(parseFloat(e.target.value))}
-                    className="w-full mt-2 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-purple-300">Creative</span>
+                    <span className="text-xs text-purple-300">Exact match</span>
+                  </div>
                 </div>
 
+                {/* Steps slider with descriptive labels */}
                 <div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center mb-2">
                     <label className="block text-sm font-medium text-purple-200">
-                      Steps
-                      <Tooltip text="More steps can improve quality but take longer to generate." />
+                      Quality Level
+                      <Tooltip text="Higher quality takes longer to generate." />
                     </label>
-                    <span className="text-xs bg-purple-500/30 px-2 py-1 rounded-full text-white">{steps}</span>
+                    <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
+                      {steps <= 6 ? 'Fast' : steps <= 9 ? 'Standard' : 'Premium'}
+                    </span>
                   </div>
                   <input
                     type="range"
@@ -629,25 +681,40 @@ const PortraitGenerator = () => {
                     step="1"
                     value={steps}
                     onChange={(e) => setSteps(parseFloat(e.target.value))}
-                    className="w-full mt-2 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   />
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-purple-300">Faster</span>
+                    <span className="text-xs text-purple-300">Higher quality</span>
+                  </div>
                 </div>
               </div>
-              
-              <button
-                className="w-full py-3 px-4 rounded-md text-white font-semibold shadow-lg transition-all backdrop-filter backdrop-blur-sm bg-gradient-to-r from-purple-600/100 to-pink-600/100 hover:from-purple-700/90 hover:to-pink-700/90 transform hover:translate-y-px"
-                onClick={generatePortrait}
-                disabled={uploadedImages.length === 0 || !selectedTemplate || isGenerating}
-              >
-                {isGenerating ? (
-                  <span className="flex items-center justify-center">
-                    <Loader2 className="animate-spin mr-2" size={18} />
-                    Generating...
-                  </span>
-                ) : 'Generate Portrait'}
-              </button>
             </div>
+          )}
+          
+          {/* Generate button - OUTSIDE the collapsible area */}
+          <div className="mt-6">
+            <button
+              className="w-full py-4 px-4 rounded-md text-white font-semibold shadow-lg transition-all backdrop-filter backdrop-blur-sm bg-gradient-to-r from-purple-600/100 to-pink-600/100 hover:from-purple-700/90 hover:to-pink-700/90 transform hover:translate-y-px flex items-center justify-center"
+              onClick={generatePortrait}
+              disabled={uploadedImages.length === 0 || !selectedTemplate || isGenerating}
+            >
+              {isGenerating ? (
+                <span className="flex items-center justify-center">
+                  <Loader2 className="animate-spin mr-2" size={20} />
+                  Generating your portrait...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center">
+                  <Camera className="mr-2" size={20} />
+                  Generate Portrait
+                </span>
+              )}
+            </button>
           </div>
+        </div>
+
+          
         </div>
 
         {/* Result section */}
