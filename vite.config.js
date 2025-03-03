@@ -8,5 +8,11 @@ export default defineConfig({
     host: '0.0.0.0', // Ensure it binds to all network interfaces
     strictPort: true, // Ensures it fails if the port is unavailable
     allowedHosts: ['fotogen-production.up.railway.app'], // Allow Railway deployment
+    proxy: {
+      '/api': {
+        target: process.env.VITE_BACKEND_URI || 'http://localhost:3001',
+        changeOrigin: true,
+      }
+    }
   }
 });
