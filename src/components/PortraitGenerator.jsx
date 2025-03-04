@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Upload, X, Camera, Loader2, ImageIcon, Sliders } from 'lucide-react';
-
+import { useLanguage } from '../LanguageContext';
+import { translations } from '../translations';
 
 const Tooltip = ({ text }) => (
-  <div className="relative inline-block">
+  <div className="relative inline-block" >
       <span className="relative text-gray-300 bg-gray-700 px-2 py-1 text-xs font-bold rounded-full ml-2 cursor-pointer hover:bg-gray-600 transition group">
           ?
           <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-32 bg-gray-800 text-white text-xs rounded-md px-2 py-1 opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity shadow-lg z-50 text-center break-words">
@@ -13,7 +14,40 @@ const Tooltip = ({ text }) => (
   </div>
 );
 
+const LanguageSelector = () => {
+  const { language, setLanguage } = useLanguage();
+  
+  return (
+    <div className="language-selector">
+      <div className="ml-auto flex gap-1">
+        <button 
+          onClick={() => setLanguage('en')}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+            language === 'en' 
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
+              : 'bg-black/20 backdrop-blur-sm text-purple-200 hover:bg-black/30'
+          }`}
+        >
+          EN
+        </button>
+        <button 
+          onClick={() => setLanguage('ru')}
+          className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+            language === 'ru' 
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
+              : 'bg-black/20 backdrop-blur-sm text-purple-200 hover:bg-black/30'
+          }`}
+        >
+          RU
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const PortraitGenerator = () => {
+  const { language } = useLanguage();
+  const t = translations[language];
   const [uploadedImages, setUploadedImages] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [resultImage, setResultImage] = useState(null);
@@ -21,7 +55,7 @@ const PortraitGenerator = () => {
   const [prompt, setPrompt] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
   const [strength, setStrength] = useState(0.7);
-  const [resemblance, setResemblance] = useState(1.3);
+  const [resemblance, setResemblance] = useState(1.2);
   const [steps, setSteps] = useState(5);
   const [jobId, setJobId] = useState(null);
   const [error, setError] = useState(null);
@@ -33,6 +67,7 @@ const PortraitGenerator = () => {
   const [progress, setProgress] = useState(0);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
+  const generateButtonRef = useRef(null);
 
   const toggleSettings = () => {
     setIsSettingsExpanded(!isSettingsExpanded);
@@ -56,10 +91,31 @@ const PortraitGenerator = () => {
   }
 
   useEffect(() => {
+    // Set the first template (or any other) as default
+    setSelectedTemplate(templateOptions[1]);  // Index 0 for first template
+  }, []); // Empty dependency array ensures it runs once on component mount
+
+  useEffect(() => {
     return () => {
       uploadedImages.forEach(image => URL.revokeObjectURL(image.preview));
     };
   }, [uploadedImages]);
+
+  // When photos uploaded, scroll to generate
+  useEffect(() => {
+    if (uploadedImages.length > 0 && generateButtonRef.current) {
+      generateButtonRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [uploadedImages]);
+
+  useEffect(() => {
+    if (generatedImages.length > 0 && document.getElementById('gallery-section')) {
+      document.getElementById('gallery-section').scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  }, [generatedImages]);
 
   useEffect(() => {
     let timer;
@@ -96,29 +152,38 @@ const PortraitGenerator = () => {
     
     const newImages = files.map(file => ({
       file,
+      id: Date.now() + Math.random().toString(36).substring(2),
       preview: URL.createObjectURL(file)
     }));
     setUploadedImages(prevImages => [...prevImages, ...newImages]);
-    
     // Clear the input so the same file can be uploaded again if needed
     e.target.value = null;
     };
 
-    const handleTemplateUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    // const handleTemplateUpload = (e) => {
+    //     const file = e.target.files[0];
+    //     if (!file) return;
     
-        setTemplateUrl({
-            file: file,  
-            preview: URL.createObjectURL(file)  // Generate a temporary preview URL
-        });
+    //     setTemplateUrl({
+    //         file: file,  
+    //         preview: URL.createObjectURL(file)  // Generate a temporary preview URL
+    //     });
     
-        e.target.value = null;
-    };
+    //     e.target.value = null;
+    // };
 
   const removeImage = (index) => {
-    URL.revokeObjectURL(uploadedImages[index].preview);
-    setUploadedImages(uploadedImages.filter((_, i) => i !== index));
+    // Create a copy of the array first
+    const updatedImages = [...uploadedImages];
+    
+    // Remove object URL to prevent memory leaks
+    URL.revokeObjectURL(updatedImages[index].preview);
+    
+    // Remove the image at specified index
+    updatedImages.splice(index, 1);
+    
+    // Set the new array
+    setUploadedImages(updatedImages);
   };
 
   const uploadImageToServer = async (file) => {
@@ -242,7 +307,7 @@ const PortraitGenerator = () => {
       return (
         <div className="flex flex-col items-center justify-center p-4 text-purple-200">
           <ImageIcon size={48} className="mb-2 opacity-50" />
-          <p className="text-sm text-center">No reference photos uploaded yet</p>
+          <p className="text-sm text-center">{t.noReferencePhotos}</p>
         </div>
       );
     }
@@ -250,14 +315,14 @@ const PortraitGenerator = () => {
     return (
       <div className="grid grid-cols-3 gap-2 p-2">
         {uploadedImages.map((image, index) => (
-          <div key={index} className="relative group">
+          <div key={image.id} className="relative group">
             <img 
               src={image.preview} 
               alt={`Preview ${index}`}
               className="w-full h-24 rounded-md object-cover border border-purple-300"
             />
             <button 
-              onClick={() => removeImage(index)}
+              onClick={() => removeImage(uploadedImages.indexOf(image))}
               className="absolute top-1 right-1 bg-red-500 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <X size={12} className="text-white" />
@@ -270,15 +335,7 @@ const PortraitGenerator = () => {
 
   const renderTemplateOptions = () => {
     return (
-      <div className="mb-5">
-        <h3 className="text-md font-medium text-white mb-2 flex items-center justify-between">
-          {selectedTemplate && (
-            <span className="text-xs bg-purple-500/30 px-2 py-1 rounded-full text-white">
-              Template Selected
-            </span>
-          )}
-        </h3>
-        
+      <div className="mb-5"> 
         {/* Scrollable container with arrows */}
         <div className="relative group">
           {/* Left scroll arrow */}
@@ -307,8 +364,8 @@ const PortraitGenerator = () => {
                 key={template.id} 
                 className={`relative cursor-pointer rounded-lg overflow-hidden transition-all flex-shrink-0 w-52 snap-start ${
                   selectedTemplate && selectedTemplate.id === template.id 
-                    ? 'ring-3 ring-purple-500 transform scale-105' 
-                    : 'hover:ring-2 hover:ring-purple-300'
+                    ? 'ring-4 ring-purple-500 shadow-lg shadow-purple-500/200 transform scale-105' 
+                    : 'hover:ring-2 hover:ring-purple-300/70'
                 }`}
                 onClick={() => setSelectedTemplate(template)}
               >
@@ -339,13 +396,7 @@ const PortraitGenerator = () => {
             display: none;
           }
         `}</style>
-        
-        {/* Show message if no template is selected */}
-        {!selectedTemplate && (
-          <p className="text-sm text-purple-200 mt-2 text-center">
-            Select a template to control your portrait style
-          </p>
-        )}
+
       </div>
     );
   };
@@ -365,7 +416,7 @@ const PortraitGenerator = () => {
                     className="w-40 h-40 object-cover rounded-md border border-purple-300 transition-transform transform hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-white text-sm">Click to View</p>
+                    <p className="text-white text-sm">{t.clickToView}</p>
                 </div>
             </div>
 
@@ -395,10 +446,10 @@ const PortraitGenerator = () => {
         if (generatedImages.length === 0) return null;
     
         return (
-            <div className="mt-6">
+            <div id="gallery-section" className="mt-6">
                 <h2 className="text-lg font-bold text-white mb-2 flex items-center">
                     <ImageIcon className="mr-2 text-purple-300" size={20} />
-                    Your Gallery
+                    {t.galleryTitle}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {generatedImages.map((img, index) => (
@@ -452,47 +503,44 @@ const PortraitGenerator = () => {
     <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 p-4 absolute top-0 left-0 right-0 bottom-0 overflow-auto">
       <div className="max-w-2xl mx-auto w-full pb-8">
         {/* Header */}
-        <header className="flex items-center justify-center mb-6 pt-4">
+        <header className="flex items-center w-full mb-6 pt-4">
+        <div className="flex items-center">
           <div className="bg-white bg-opacity-10 backdrop-blur-lg p-3 rounded-full shadow-lg border border-white border-opacity-20">
             <Camera size={28} className="text-purple-200" />
           </div>
-          <h1 className="text-3xl font-bold text-white ml-3 tracking-tight">
+          <h1 className="text-4xl font-bold text-white ml-3 tracking-tight">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-300">
               FotoGen
             </span>
           </h1>
-        </header>
+        </div>
+        
+        <div className="ml-auto flex gap-1">
+          {/* Language buttons */}
+        </div>
+        <LanguageSelector/>
+      </header>
 
         {/* Main container */}
         <div className="bg-black bg-opacity-30 backdrop-blur-lg rounded-xl shadow-2xl border border-white border-opacity-10 overflow-hidden">
           {/* Top section */}
           <div className="p-6">
-            {/* <h2 className="text-xl font-bold text-white mb-4 flex items-center">
-              <Upload className="mr-2 text-purple-300" size={20} />
-              Upload Images
-            </h2>
-             */}
-            {/* Template image section */}
-            {/* <div className="mb-6">
-              <h3 className="text-md font-medium text-white mb-2">Template Style</h3>
-              {renderTemplatePreview()}
-            </div> */}
 
             {/* Template selection section */}
             <div className="mb-6">
-              <h3 className="text-md font-medium text-white mb-3">Select Template Photo</h3>
-              {renderTemplateOptions()}
-              
-              {/* Show message if no template is selected */}
-              {/* {!selectedTemplate && (
-                <p className="text-sm text-purple-200 mt-2 text-center">
-                  Select a photo to control your pose
-                </p>
-              )} */}
+              <h3 className="text-md font-medium text-white mb-3"> 
+                1. {t.selectPose}
+                <Tooltip text={t.selectPoseTip} />
+                </h3>
+              {renderTemplateOptions()}              
             </div>
             
             {/* Reference photos section */}
-            <h3 className="text-md font-medium text-white mb-3">Your Reference Photos</h3>
+            <div className="mb-6">
+              <h3 className="text-md font-medium text-white mb-3">
+                2. {t.uploadPhotos}
+              </h3>
+            </div>
             
             {/* Upload area */}
             <div 
@@ -505,8 +553,8 @@ const PortraitGenerator = () => {
                 <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
                   <Upload className="w-8 h-8 text-purple-300" />
                 </div>
-                <p className="text-white font-medium mb-1">Drop up to 6 of your photos here</p>
-                <p className="text-sm text-purple-200">or click to browse</p>
+                <p className="text-white font-medium mb-1"> {t.uploadPhotosTip} </p>
+                <p className="text-sm text-purple-200">{t.uploadPhotosTipAdd}</p>
                 <input 
                   type="file" 
                   multiple 
@@ -528,7 +576,7 @@ const PortraitGenerator = () => {
                     onClick={() => setUploadedImages([])}
                     className="mt-2 text-white px-4 py-2 rounded-md text-sm font-medium transition bg-gradient-to-r from-purple-600/70 to-pink-600/70 hover:translate-y-px"
                 >
-                    Remove All
+                    {t.removeAll}
                 </button>
             )}
             
@@ -538,25 +586,6 @@ const PortraitGenerator = () => {
             {error && (
               <div className="mt-4 p-3 bg-red-500 bg-opacity-20 border border-red-500 rounded-md">
                 <p className="text-red-200 text-sm">{error}</p>
-              </div>
-            )}
-            
-            {/* Progress indicator for generation */}
-            {isGenerating && (
-              <div className="mt-4 bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-purple-500/30">
-                <div className="flex items-center justify-center mb-2">
-                  <Loader2 className="animate-spin mr-2 text-purple-400" size={24} />
-                  <p className="text-white font-medium">Creating your portrait...</p>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-                  <div 
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300 ease-out" 
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-                {/* <p className="text-xs text-right mt-1 text-purple-200">
-                  {progress < 100 ? `${progress}% complete` : 'Processing final image...'}
-                </p> */}
               </div>
             )}
           </div>
@@ -570,7 +599,7 @@ const PortraitGenerator = () => {
           >
             <h2 className="text-xl font-bold text-white flex items-center">
               <Sliders className="mr-2 text-purple-300" size={20} />
-              Portrait Settings
+              {t.settings}
             </h2>
             <div className="p-2 rounded-full hover:bg-white/10 transition-colors">
               {isSettingsExpanded ? (
@@ -589,22 +618,22 @@ const PortraitGenerator = () => {
           {isSettingsExpanded && (
             <div className="space-y-4 mt-4">
               <div>
-                <label className="block text-sm font-medium text-purple-200 mb-1">Describe your ideal portrait (optional)</label>
+                <label className="block text-sm font-medium text-purple-200 mb-1">{t.positivePrompt}</label>
                 <textarea
                   className="w-full p-3 rounded-md bg-purple-900/30 text-white text-sm border border-purple-500/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-600 focus:outline-none transition-all shadow-inner backdrop-blur-sm placeholder-purple-300/50"
                   rows="3"
-                  placeholder="e.g., sharp focus, professional photo, soft warm lighting, dressed casually"
+                  placeholder={t.positivePromptExample}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-200 mb-1">What to avoid (optional)</label>
+                <label className="block text-sm font-medium text-purple-200 mb-1">{t.negativePrompt}</label>
                 <textarea
                   className="w-full p-3 rounded-md bg-purple-900/30 text-white text-sm border border-purple-500/30 focus:ring-2 focus:ring-purple-500/50 focus:border-purple-600 focus:outline-none transition-all shadow-inner backdrop-blur-sm placeholder-purple-300/50"
                   rows="3"
-                  placeholder="e.g., grinning, blurry"
+                  placeholder={t.negativePromptExample}
                   value={negativePrompt}
                   onChange={(e) => setNegativePrompt(e.target.value)}
                 />
@@ -615,25 +644,25 @@ const PortraitGenerator = () => {
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="block text-sm font-medium text-purple-200">
-                      Resemblance
-                      <Tooltip text="Higher value preserves your identity more but may reduce naturalness." />
+                      {t.resemblanceTitle}
+                      <Tooltip text={t.resemblanceTip}/>
                     </label>
                     <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
-                      {resemblance < 1 ? 'Subtle' : resemblance < 1.5 ? 'Balanced' : 'Strong'}
+                      {resemblance < 0.7 ? t.resemblanceScaleStart : resemblance < 1.4 ? t.resemblanceScaleLeft : t.resemblanceScaleRight}
                     </span>
                   </div>
                   <input
                     type="range"
-                    min="0.7"
-                    max="2"
+                    min="0.5"
+                    max="1.7"
                     step="0.1"
                     value={resemblance}
                     onChange={(e) => setResemblance(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   />
                   <div className="flex justify-between mt-1">
-                    <span className="text-xs text-purple-300">Less like you</span>
-                    <span className="text-xs text-purple-300">More like you</span>
+                    <span className="text-xs text-purple-300">{t.resemblanceLeft}</span>
+                    <span className="text-xs text-purple-300">{t.resemblanceRight}</span>
                   </div>
                 </div>
                 
@@ -641,11 +670,11 @@ const PortraitGenerator = () => {
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="block text-sm font-medium text-purple-200">
-                      Template Strength
-                      <Tooltip text="Higher value increases conformity to the template composition." />
+                      {t.templateTitle}
+                      <Tooltip text={t.templateTip} />
                     </label>
                     <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
-                      {strength < 0.7 ? 'Minimal' : strength < 1.3 ? 'Moderate' : 'Maximum'}
+                      {strength < 0.7 ? t.templateScaleStart : strength < 1.3 ? t.templateScaleLeft : t.templateScaleRight}
                     </span>
                   </div>
                   <input
@@ -658,8 +687,8 @@ const PortraitGenerator = () => {
                     className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   />
                   <div className="flex justify-between mt-1">
-                    <span className="text-xs text-purple-300">Creative</span>
-                    <span className="text-xs text-purple-300">Exact match</span>
+                    <span className="text-xs text-purple-300">{t.templateLeft}</span>
+                    <span className="text-xs text-purple-300">{t.templateRight}</span>
                   </div>
                 </div>
 
@@ -667,11 +696,11 @@ const PortraitGenerator = () => {
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="block text-sm font-medium text-purple-200">
-                      Quality Level
-                      <Tooltip text="Higher quality takes longer to generate." />
+                      {t.stepsTitle}
+                      <Tooltip text={t.stepsTip}/>
                     </label>
                     <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
-                      {steps <= 6 ? 'Fast' : steps <= 9 ? 'Standard' : 'Premium'}
+                      {steps <= 6 ? t.stepsScaleStart : steps <= 9 ? t.stepsScaleLeft : t.stepsScaleRight}
                     </span>
                   </div>
                   <input
@@ -684,8 +713,8 @@ const PortraitGenerator = () => {
                     className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
                   />
                   <div className="flex justify-between mt-1">
-                    <span className="text-xs text-purple-300">Faster</span>
-                    <span className="text-xs text-purple-300">Higher quality</span>
+                    <span className="text-xs text-purple-300">{t.stepsLeft}</span>
+                    <span className="text-xs text-purple-300">{t.stepsRight}</span>
                   </div>
                 </div>
               </div>
@@ -693,7 +722,7 @@ const PortraitGenerator = () => {
           )}
           
           {/* Generate button - OUTSIDE the collapsible area */}
-          <div className="mt-6">
+          <div ref={generateButtonRef} className="mt-6">
             <button
               className="w-full py-4 px-4 rounded-md text-white font-semibold shadow-lg transition-all backdrop-filter backdrop-blur-sm bg-gradient-to-r from-purple-600/100 to-pink-600/100 hover:from-purple-700/90 hover:to-pink-700/90 transform hover:translate-y-px flex items-center justify-center"
               onClick={generatePortrait}
@@ -701,17 +730,34 @@ const PortraitGenerator = () => {
             >
               {isGenerating ? (
                 <span className="flex items-center justify-center">
-                  <Loader2 className="animate-spin mr-2" size={20} />
-                  Generating your portrait...
+                  {/* <Loader2 className="animate-spin mr-2" size={20} /> */}
+                  {t.generating}
                 </span>
               ) : (
                 <span className="flex items-center justify-center">
-                  <Camera className="mr-2" size={20} />
-                  Generate Portrait
+                  {/* <Camera className="mr-2" size={20} /> */}
+                  {t.generateButton}
                 </span>
               )}
             </button>
           </div>
+
+          {/* Progress indicator for generation */}
+          {isGenerating && (
+          <div className="mt-4 bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-purple-500/30">
+            <div className="flex items-center justify-center mb-2">
+              <Loader2 className="animate-spin mr-2 text-purple-400" size={24} />
+              <p className="text-white font-medium">{t.creating}</p>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
+              <div 
+                className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300 ease-out" 
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          </div>
+          )}
+
         </div>
 
           
