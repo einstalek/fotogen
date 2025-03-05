@@ -10,7 +10,6 @@
     "preview": "vite preview",
     "dev": "concurrently \"cd backend && node server.js\" \"vite\"",
     "start": "cd backend && node server.js"
-    
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
@@ -29,6 +28,7 @@
     "path-browserify": "^1.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.2.0",
     "stream-browserify": "^3.0.0",
     "uuid": "^11.1.0"
   },
