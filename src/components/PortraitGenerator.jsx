@@ -340,7 +340,7 @@ const PortraitGenerator = () => {
         <div className="relative group">
           {/* Left scroll arrow */}
           <button 
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-20 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-l-md"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-1/2 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-l-md"
             onClick={() => {
               const container = document.getElementById('template-scroller');
               container.scrollBy({ left: -220, behavior: 'smooth' });
@@ -380,7 +380,7 @@ const PortraitGenerator = () => {
           
           {/* Right scroll arrow */}
           <button 
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-20 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-r-md"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-1/2 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity rounded-r-md"
             onClick={() => {
               const container = document.getElementById('template-scroller');
               container.scrollBy({ left: 220, behavior: 'smooth' });
