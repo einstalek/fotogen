@@ -69,13 +69,6 @@ const Header = () => {
               >
                 {t.createPortrait || "Create Portrait"}
               </Link>
-              <Link 
-                to="/examples" 
-                className="text-purple-200 hover:text-white py-3 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t.examples || "Examples"}
-              </Link>
               <div className="mt-4 flex justify-end" style={{ position: 'relative', zIndex: 1001 }}>
                 <LanguageSelector />
               </div>
