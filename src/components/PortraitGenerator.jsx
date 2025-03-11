@@ -24,8 +24,8 @@ const PortraitGenerator = () => {
   const [generatedImages, setGeneratedImages] = useState([]);
   const [prompt, setPrompt] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
-  const [strength, setStrength] = useState(0.7);
-  const [resemblance, setResemblance] = useState(1.2);
+  const [strength, setStrength] = useState(0.15);
+  const [resemblance, setResemblance] = useState(1.);
   const [steps, setSteps] = useState(5);
   const [jobId, setJobId] = useState(null);
   const [error, setError] = useState(null);
@@ -41,6 +41,8 @@ const PortraitGenerator = () => {
   const customTemplateInputRef = useRef(null);
   const generateButtonRef = useRef(null);
   const [uploadedUrlsCache, setUploadedUrlsCache] = useState({});
+  const [usePoseControl, setUsePoseControl] = useState(true);
+  const [activePreset, setActivePreset] = useState('custom');
 
   const toggleSettings = () => {
     setIsSettingsExpanded(!isSettingsExpanded);
@@ -248,6 +250,68 @@ const PortraitGenerator = () => {
     setIsCropping(false);
   };
 
+  // Add this function to your component
+  const applyPreset = (presetId) => {
+    setActivePreset(presetId);
+    
+    // Default is to keep current settings
+    let newResemblance = resemblance;
+    let newStrength = strength;
+    let newUsePoseControl = usePoseControl;
+    let newSteps = steps;
+    let newPrompt = prompt;
+    let newNegativePrompt = negativePrompt;
+    
+    switch(presetId) {
+      case 'professional':
+        newResemblance = 1.1;
+        newStrength = 0.15;
+        newUsePoseControl = true;
+        newSteps = 10;
+        newPrompt = "Professional headshot, neutral background, clear lighting, formal attire, sharp focus";
+        newNegativePrompt = "";
+        break;
+                
+      case 'vintage':
+        newResemblance = 1.1;
+        newStrength = 0.15;
+        newUsePoseControl = true;
+        newSteps = 5;
+        newPrompt = "Vintage portrait, film grain, sepia tones, warm tones";
+        newNegativePrompt = "";
+        break;
+        
+      case 'social':
+        newResemblance = 1.1;
+        newStrength = 0.05;
+        newUsePoseControl = true;
+        newSteps = 8;
+        newPrompt = "Friendly portrait, casual style, warm smile, approachable";
+        newNegativePrompt = "";
+        break;
+        
+      case 'custom':
+        newResemblance = 1.1;
+        newStrength = 0.15;
+        newUsePoseControl = true;
+        newSteps = 5;
+        newPrompt = "";
+        newNegativePrompt = "";
+        break;
+      
+      default:
+        break;
+    }
+    
+    // Apply the new settings
+    setResemblance(newResemblance);
+    setStrength(newStrength);
+    setUsePoseControl(newUsePoseControl);
+    setSteps(newSteps);
+    setPrompt(newPrompt);
+    setNegativePrompt(newNegativePrompt);
+  };
+
   const removeImage = (index) => {
     const updatedImages = [...uploadedImages];
     const imageToRemove = updatedImages[index];
@@ -344,10 +408,12 @@ const PortraitGenerator = () => {
         body: JSON.stringify({
             template_url: templateUrl,
             selfie_urls: selfieUrls,
-            prompt: prompt || "professional portrait photo, highly detailed",
+            prompt: prompt || "professional portrait photo, highly detailed, sharp focus",
             negative_prompt: negativePrompt,
-            resemblance: resemblance,
-            cn_strength: strength,
+            ip_weight: resemblance / 1.1,
+            cn_strength: resemblance,
+            control_pose: usePoseControl,
+            template_denoise: 1 - strength,
             steps: steps
         })
       });
@@ -641,37 +707,6 @@ const PortraitGenerator = () => {
                     </div>
                 ))}
             </div>
-
-            {/* Modal for Full-Size Image */}
-            {/* {isModalOpen && selectedImage && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50 p-4 overflow-y-auto"
-                    onClick={() => setIsModalOpen(false)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Escape") setIsModalOpen(false);
-                    }}
-                    tabIndex={0}
-                >
-                    <div
-                        className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <button
-                            className="absolute top-4 right-4 bg-black bg-opacity-50 rounded-full p-2 text-white hover:bg-opacity-70 transition-all z-10"
-                            onClick={() => setIsModalOpen(false)}
-                        >
-                            <X size={24} />
-                        </button>
-                        <div className="flex items-center justify-center">
-                            <img
-                                src={selectedImage || "/placeholder.svg"}
-                                alt="Full-size Generated Portrait"
-                                className="max-w-full max-h-[80vh] object-contain rounded-md"
-                            />
-                        </div>
-                    </div>
-                </div>
-            )} */}
         </div>
     );
 };
@@ -725,7 +760,7 @@ const PortraitGenerator = () => {
                 </div>
               </div>
               {/* Image previews */}
-              <div className="mt-4">
+              <div className="mb-6">
                 {renderImagePreview()}
                 {/* Remove All Button */}
                 {uploadedImages.length > 0 && (
@@ -747,6 +782,34 @@ const PortraitGenerator = () => {
                   <p className="text-red-200 text-sm">{error}</p>
                 </div>
               )}
+
+              {/* Style Presets */}
+              <div className="mb-6">
+              <h3 className="text-md font-medium text-white mb-3">
+                  3. {t.presetTitle || "Select Style or Choose Your Own Settings"}
+              </h3>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { id: 'custom', name: t.presetCustom || 'Default' },
+                  { id: 'professional', name: t.presetProfessional || 'Work CV' },
+                  { id: 'vintage', name: t.presetVintage || 'Vintage' },
+                  { id: 'social', name: t.presetSocial || 'Social' },
+                ].map((preset) => (
+                  <button
+                    key={preset.id}
+                    onClick={() => applyPreset(preset.id)}
+                    className={`py-2 px-1 text-xs rounded-md transition-all backdrop-filter backdrop-blur-sm ${
+                      activePreset === preset.id
+                        ? 'bg-gradient-to-r from-purple-600/90 to-pink-600/90 text-white shadow-md'
+                        : 'bg-purple-900/30 text-purple-200 hover:bg-purple-800/40 border border-purple-500/30'
+                    }`}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             </div>
 
             {/* Bottom section - Portrait Settings */}
@@ -807,14 +870,14 @@ const PortraitGenerator = () => {
                           <Tooltip text={t.resemblanceTip}/>
                         </label>
                         <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
-                          {resemblance < 0.7 ? t.resemblanceScaleStart : resemblance < 1.4 ? t.resemblanceScaleLeft : t.resemblanceScaleRight}
+                          {resemblance < 1.0 ? t.resemblanceScaleStart : resemblance < 1.3 ? t.resemblanceScaleLeft : t.resemblanceScaleRight}
                         </span>
                       </div>
                       <input
                         type="range"
-                        min="0.5"
-                        max="1.7"
-                        step="0.1"
+                        min="0.9"
+                        max="1.5"
+                        step="0.2"
                         value={resemblance}
                         onChange={(e) => setResemblance(parseFloat(e.target.value))}
                         className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
@@ -833,13 +896,13 @@ const PortraitGenerator = () => {
                           <Tooltip text={t.templateTip} />
                         </label>
                         <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
-                          {strength < 0.7 ? t.templateScaleStart : strength < 1.3 ? t.templateScaleLeft : t.templateScaleRight}
+                          {strength < 0.1 ? t.templateScaleStart : strength < 0.2 ? t.templateScaleLeft : t.templateScaleRight}
                         </span>
                       </div>
                       <input
                         type="range"
-                        min="0"
-                        max="2"
+                        min="0.05"
+                        max="0.25"
                         step="0.1"
                         value={strength}
                         onChange={(e) => setStrength(parseFloat(e.target.value))}
@@ -865,8 +928,8 @@ const PortraitGenerator = () => {
                       <input
                         type="range"
                         min="5"
-                        max="12"
-                        step="1"
+                        max="11"
+                        step="3"
                         value={steps}
                         onChange={(e) => setSteps(parseInt(e.target.value))}
                         className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
@@ -876,6 +939,29 @@ const PortraitGenerator = () => {
                         <span className="text-xs text-purple-300">{t.stepsRight}</span>
                       </div>
                     </div>
+
+                    {/* Pose Control Toggle */}
+                    <div className="mt-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-purple-200">
+                          {t.poseControlTitle || "Use Pose Control"}
+                          <Tooltip text={t.poseControlTip || "Enable to maintain the pose from your reference images"} />
+                        </label>
+                        <button
+                          onClick={() => setUsePoseControl(!usePoseControl)}
+                          className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors ${
+                            usePoseControl ? 'bg-gradient-to-r from-purple-600 to-pink-600' : 'bg-purple-900/30'
+                          } border ${usePoseControl ? 'border-purple-400/50' : 'border-purple-500/30'}`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full transition-transform ${
+                              usePoseControl ? 'translate-x-7 bg-white shadow-md' : 'translate-x-1 bg-purple-200'
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               )}
@@ -894,7 +980,7 @@ const PortraitGenerator = () => {
                   ) : (
                     <span className="flex items-center justify-center">
                       <Camera className="mr-2" size={20} />
-                      {t.generateButton}
+                      4. {t.generateButton}
                     </span>
                   )}
                 </button>

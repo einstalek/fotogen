@@ -58,8 +58,8 @@ export const translations = {
       contact: "Contact",
       
       // Generator Page (restored translations)
-      selectPose: "Choose your pose",
-      selectPoseTip: "This image defines your pose",
+      selectPose: "Choose a Control Image",
+      selectPoseTip: "This image defines your pose and general composition",
       uploadPhotos: "Upload your photos",
       uploadPhotosTip: "Drop up to 6 of your photos here",
       uploadPhotosTipAdd: "or click to browse",
@@ -72,12 +72,13 @@ export const translations = {
       negativePromptExample: "e.g., grinning, blurry",
       resemblanceTitle: "Resemblance",
       resemblanceTip: "Preserves your identity more, but may reduce naturalness",
+      resemblanceScaleStart: "Subtle",
       resemblanceScaleLeft: "Balanced",
       resemblanceScaleRight: "Strong",
       resemblanceLeft: "Less like you",
       resemblanceRight: "More like you",
-      templateTitle: "Pose Strength",
-      templateTip: "Increases conformity to the reference pose",
+      templateTitle: "Control Image Influence",
+      templateTip: "Increases conformity to the control image",
       templateScaleLeft: "Moderate",
       templateScaleRight: "Maximum",
       templateScaleStart: "Minimal",
@@ -88,11 +89,20 @@ export const translations = {
       stepsScaleRight: "Premium",
       stepsLeft: "Faster",
       stepsRight: "Higher quality",
-      generateButton: "3. Generate Portrait",
+      generateButton: "Generate Portrait",
       generating: "Generating your portrait...",
       creating: "Creating your portrait...",
       clickToView: "Click to View",
-      galleryTitle: "Your Gallery"
+      galleryTitle: "Your Gallery",
+      
+      presetTitle: "Available Presets",
+      presetCustom: "Default",
+      presetProfessional: "Work CV",
+      presetVintage: "Vintage",
+      presetSocial: "Social",
+
+      poseControlTitle: "Use Pose Control",
+      poseControlTip: "Use Pose from the Control Image. Usually this improves the result."
   },
   ru: {
       // Header & Navigation
@@ -120,8 +130,8 @@ export const translations = {
       uploadCustomTip: "Квадратное фото лучше",
       
       // Generator Page (restored translations)
-      selectPose: "Выберите позу",
-      selectPoseTip: "Это фото контролирует вашу позу",
+      selectPose: "Выберите Контрольное Фото",
+      selectPoseTip: "Это фото контролирует вашу позу и общую композицию",
       uploadPhotos: "Загрузите ваши фото",
       uploadPhotosTip: "Загрузите не более 6 своих фото",
       uploadPhotosTipAdd: "или нажмите чтобы выбрать",
@@ -134,12 +144,13 @@ export const translations = {
       negativePromptExample: "напр., ухмылка, размыто",
       resemblanceTitle: "Сходство",
       resemblanceTip: "Повышает похожесть на вас, но может ухудшить качество",
+      resemblanceScaleStart: "Немного",
       resemblanceScaleLeft: "Баланс",
       resemblanceScaleRight: "Сильно",
       resemblanceLeft: "Меньше похоже на вас",
       resemblanceRight: "Больше похоже на вас",
-      templateTitle: "Сила позы",
-      templateTip: "Усиляет влияние выбранной позы",
+      templateTitle: "Влияние контрольного фото",
+      templateTip: "Усиляет влияние выбранного контрольного фото",
       templateScaleLeft: "Умеренно",
       templateScaleRight: "Максимум",
       templateScaleStart: "Минимум",
@@ -150,10 +161,19 @@ export const translations = {
       stepsScaleRight: "Премиум",
       stepsLeft: "Быстрее",
       stepsRight: "Выше качество",
-      generateButton: "3. Создать портрет",
+      generateButton: "Создать портрет",
       generating: "Генерация портрета...",
       creating: "Создаем ваш портрет...",
       clickToView: "Нажмите для просмотра",
-      galleryTitle: "Ваша галерея"
+      galleryTitle: "Ваша галерея",
+      
+      presetTitle: "Доступные пресеты",
+      presetCustom: "Стандарт",
+      presetProfessional: "Для работы",
+      presetVintage: "Винтаж",
+      presetSocial: "Соц-сети",
+
+      poseControlTitle: "Контролировать позу",
+      poseControlTip: "Использовать ли позу из контрольного фото. Обычно это улучшает результат."
   }
 };
