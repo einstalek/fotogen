@@ -80,7 +80,7 @@ app.post('/api/submit-runpod-job', async (req, res) => {
                     steps: steps,
                     style_image: style_image,
                     style_weight: style_weight,
-                    eyes_blend_factor: 0.7,
+                    eyes_blend_factor: 0.6,
                     image_width: 1024,
                     image_height: 1024,
                     upscale_value: 1.3,

@@ -32,6 +32,14 @@ const usePortraitGenerator = (templateOptions = []) => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
 
+  let backendURI;
+  if (import.meta.env.DEV) {
+    backendURI = import.meta.env.VITE_BACKEND_URI;
+  } 
+  else {
+    backendURI = '';  // Empty string for relative paths
+  }
+
   // Refs
   const fileInputRef = useRef(null);
   const customTemplateInputRef = useRef(null);
@@ -228,7 +236,7 @@ const usePortraitGenerator = (templateOptions = []) => {
     formData.append('image', file);
 
     try {
-      const response = await fetch('http://localhost:3001/api/upload-image', {
+      const response = await fetch(`${backendURI}/api/upload-image`, {
         method: 'POST',
         body: formData,
       });
@@ -307,7 +315,7 @@ const usePortraitGenerator = (templateOptions = []) => {
       };
       console.log('Request body:', requestBody); // Debug log
 
-      const response = await fetch('http://localhost:3001/api/submit-runpod-job', {
+      const response = await fetch(`${backendURI}/api/submit-runpod-job`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -334,7 +342,7 @@ const usePortraitGenerator = (templateOptions = []) => {
       const totalDuration = 120000; // 90 seconds in milliseconds
 
       while (jobStatus === 'pending') {
-        const statusResponse = await fetch(`http://localhost:3001/api/check-runpod-job/${jobId}`);
+        const statusResponse = await fetch(`${backendURI}/api/check-runpod-job/${jobId}`);
         if (!statusResponse.ok) {
           throw new Error('Failed to check job status');
         }
