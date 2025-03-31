@@ -10,7 +10,7 @@ const usePortraitGenerator = (templateOptions = []) => {
   const [prompt, setPrompt] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
   const [resemblance, setResemblance] = useState(1.3);
-  const [strength, setStrength] = useState(0);
+  const [strength, setStrength] = useState(0.2);
   const [steps, setSteps] = useState(11);
   const [usePoseControl, setUsePoseControl] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate);
