@@ -279,20 +279,25 @@ const usePortraitGenerator = (templateOptions = []) => {
         })
       );
 
-      // Get the template URL
       let templateUrl;
       if (selectedTemplate === 'custom' && customTemplate) {
         templateUrl = await uploadImageToServer(customTemplate.file);
-      } else {
-        // const template = templateOptions.find(t => t.id === selectedTemplate);
-        // templateUrl = template.url;
+      } else if (typeof selectedTemplate === 'object' && selectedTemplate !== null) {
         templateUrl = selectedTemplate.url;
+      } else if (typeof selectedTemplate === 'string' && selectedTemplate !== 'custom') {
+        const template = templateOptions.find(t => t.id === selectedTemplate);
+        if (template) {
+          templateUrl = template.url;
+        }
       }
 
-      console.log(templateOptions);
-      console.log(selectedTemplate);
-
       if (!templateUrl) {
+        console.error('Template selection error:', { 
+          selectedTemplate, 
+          isCustom: selectedTemplate === 'custom', 
+          hasCustomTemplate: !!customTemplate,
+          templateOptionsLength: templateOptions?.length
+        });
         throw new Error('Invalid template selected');
       }
 
