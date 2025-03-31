@@ -276,8 +276,9 @@ const usePortraitGenerator = (templateOptions = []) => {
       if (selectedTemplate === 'custom' && customTemplate) {
         templateUrl = await uploadImageToServer(customTemplate.file);
       } else {
-        const template = templateOptions.find(t => t.id === selectedTemplate);
-        templateUrl = template.url;
+        // const template = templateOptions.find(t => t.id === selectedTemplate);
+        // templateUrl = template.url;
+        templateUrl = selectedTemplate.url;
       }
 
       if (!templateUrl) {
