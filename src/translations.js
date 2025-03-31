@@ -2,7 +2,7 @@ export const translations = {
   en: {
       // Header & Navigation
       home: "Home",
-      createPortrait: "Create Portrait",
+      createPortrait: "Create",
       examples: "Examples",
       
       // Landing Page
@@ -13,7 +13,7 @@ export const translations = {
       beforeLabel: "Selfie",
       afterLabel: "AI portrait",
       howItWorksTitle: "How It Works",
-      step1Title: "Upload Your Photos",
+      step1Title: "Your Photos",
       step1Description: "Simply upload a few selfies or photos of yourself. The more angles and lighting conditions, the better the results.",
       step2Title: "Customize Settings",
       step2Description: "Choose a portrait style and adjust settings like resemblance and template strength to get the perfect look.",
@@ -58,17 +58,19 @@ export const translations = {
       contact: "Contact",
       
       // Generator Page (restored translations)
-      selectPose: "Choose a Control Image",
+      selectPose: "Choose the Pose Control Image",
       selectPoseTip: "This image defines your pose and general composition",
-      uploadPhotos: "Upload your photos",
-      uploadPhotosTip: "Drop up to 6 of your photos here",
+      uploadPhotos: "Your Photos",
+      uploadPhotosTip: "Drop up to 9 of your photos here",
       uploadPhotosTipAdd: "or click to browse",
       removeAll: "Remove All",
       generatePortrait: "Generate Portrait",
-      settings: "Portrait Settings",
+      settings: "Additional Settings (optional)",
       positivePrompt: "Describe your ideal portrait (optional)",
+      positivePromptTip: "Describe what you want to see in your portrait, such as style, lighting, and mood",
       positivePromptExample: "e.g., sharp focus, professional photo, soft warm lighting, dressed casually",
       negativePrompt: "What to avoid (optional)",
+      negativePromptTip: "Describe what you want to avoid in your portrait, such as specific expressions or artifacts",
       negativePromptExample: "e.g., grinning, blurry",
       resemblanceTitle: "Resemblance",
       resemblanceTip: "Preserves your identity more, but may reduce naturalness",
@@ -94,6 +96,10 @@ export const translations = {
       creating: "Creating your portrait...",
       clickToView: "Click to View",
       galleryTitle: "Your Gallery",
+      clearGallery: "Clear Gallery",
+
+      modelVersionTitle: "Choose the model version",
+      modelVersionTip: "V1 is more grainy, with a vintage touch; V2 is more smooth and realistic",
       
       presetTitle: "Available Presets",
       presetCustom: "Default",
@@ -102,7 +108,22 @@ export const translations = {
       presetSocial: "Social",
 
       poseControlTitle: "Use Pose Control",
-      poseControlTip: "Use Pose from the Control Image. Usually this improves the result."
+      poseControlTip: "Use Pose from the Control Image. Usually this improves the result.",
+
+      cropTitle: "Crop Template Image",
+      imageToCrop: "Image to crop",
+      cropTip: "This photo will be cropped to a square",
+      cancel: "Cancel",
+      confirm: "Confirm",
+
+      selectStyle: "Select Style Image (optional)",
+      selectStyleTip: "Upload an image to control the style of your portrait",
+      uploadStyle: "Upload Style Image",
+      uploadStyleTip: "This will influence colors and stylistic elements",
+      styleImage: "Style Reference",
+      styleWeight: "Style Influence",
+      lessStyle: "Subtle",
+      moreStyle: "Strong"
   },
   ru: {
       // Header & Navigation
@@ -133,14 +154,16 @@ export const translations = {
       selectPose: "Выберите Контрольное Фото",
       selectPoseTip: "Это фото контролирует вашу позу и общую композицию",
       uploadPhotos: "Загрузите ваши фото",
-      uploadPhotosTip: "Загрузите не более 6 своих фото",
+      uploadPhotosTip: "Загрузите не более 9 своих фото",
       uploadPhotosTipAdd: "или нажмите чтобы выбрать",
       removeAll: "Удалить все",
       generatePortrait: "Создать портрет",
       settings: "Настройки портрета",
       positivePrompt: "Опишите ваш идеальный портрет (опционально)",
+      positivePromptTip: "Опишите, что вы хотите видеть на портрете: стиль, освещение, настроение",
       positivePromptExample: "напр., профессиональная фотография, мягкое теплое освещение, повседневная одежда",
       negativePrompt: "Чего избегать (опционально)",
+      negativePromptTip: "Опишите, чего вы хотите избежать на портрете, например определенных выражений или артефактов",
       negativePromptExample: "напр., ухмылка, размыто",
       resemblanceTitle: "Сходство",
       resemblanceTip: "Повышает похожесть на вас, но может ухудшить качество",
@@ -166,6 +189,7 @@ export const translations = {
       creating: "Создаем ваш портрет...",
       clickToView: "Нажмите для просмотра",
       galleryTitle: "Ваша галерея",
+      clearGallery: "Очистить галерею",
       
       presetTitle: "Доступные пресеты",
       presetCustom: "Стандарт",
@@ -174,6 +198,12 @@ export const translations = {
       presetSocial: "Соц-сети",
 
       poseControlTitle: "Контролировать позу",
-      poseControlTip: "Использовать ли позу из контрольного фото. Обычно это улучшает результат."
+      poseControlTip: "Использовать ли позу из контрольного фото. Обычно это улучшает результат.",
+
+      cropTitle: "Обрезать изображение шаблона",
+      imageToCrop: "Изображение для обрезки",
+      cropTip: "Область внутри квадрата будет использована как шаблон",
+      cancel: "Отмена",
+      confirm: "Подтвердить"
   }
 };

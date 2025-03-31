@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Camera, Image, Sliders, Upload, Check } from 'lucide-react';
+import { Camera, Image, Sliders, Upload } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { translations } from '../translations';
-import Header from './Header';
 import Footer from './Footer';
 
 const getShuffledIndices = (length) => {
@@ -31,12 +30,16 @@ const LandingPage = () => {
     }
   ];
 
+  const selfie_1 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/IMG_4507+(1).webp";
+  const selfie_2 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/NWEYEZHCGPFJ5TC9-20250331_155800.webp";
+  const style_image = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/chill+(1).webp";
+  const pose_image = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/3U45EX4YLSUPE6IU0VUQL5WVK9JGUA-20250330_202710.webp";
+  const result_1 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/7YKATDB4RFQV9EUUBKN91K3I3GU51W-20250331_160307.webp";
+  const result_2 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/H426MIBPCSL1JDNWEYEZHCGPFJ5TC9-20250331_155800.webp";
   const shuffledIndices = getShuffledIndices(3);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700">
-      <Header />
-      
+    <div className="flex flex-col">
       {/* Hero Section */}
       <section className="py-10 md:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,7 +96,7 @@ const LandingPage = () => {
     </section>
 
     {/* Examples Section */}
-    <section className="py-8 bg-black/20 md:py-12">
+    <section className="py-8 bg-black/20 backdrop-blur-sm md:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
             {t.examplesTitle || "Stunning Transformations"}
@@ -178,6 +181,118 @@ const LandingPage = () => {
         </div>
         </div>
     </div>
+    </section>
+
+    {/* Control Your Pose and Style Section */}
+    <section className="py-12 bg-black/20 backdrop-blur-sm">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+          {t.controlPoseStyleTitle || "Control Your Pose and Style"}
+        </h2>
+        <p className="text-lg text-purple-200 text-center mb-8 max-w-3xl mx-auto">
+          {t.controlPoseStyleSubtitle || "Mix and match reference poses and artistic styles to create the perfect portrait."}
+        </p>
+        
+        <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg p-6 hover:border-purple-500/30 transition-all">
+          <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4">
+            {/* Your Selfies */}
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-white mb-2 text-center">
+                {t.yourSelfiesLabel || "Your Selfies"}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-1 gap-2">
+                <div className="aspect-square relative rounded-md overflow-hidden">
+                  <img 
+                    src={selfie_1}
+                    alt="Selfie 1" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="aspect-square relative rounded-md overflow-hidden">
+                  <img 
+                    src={selfie_2}
+                    alt="Selfie 2" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Reference Pose and Style in a single column */}
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-white mb-2 text-center">
+                {t.referencesLabel || "Controls"}
+              </h3>
+              <div className="space-y-2">
+                {/* Pose Reference */}
+                <div className="aspect-square relative rounded-md overflow-hidden">
+                  <img 
+                    src={pose_image}
+                    alt="Reference Pose" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                    {t.poseLabel || "Pose"}
+                  </div>
+                </div>
+                
+                {/* Style Reference */}
+                <div className="aspect-square relative rounded-md overflow-hidden">
+                  <img 
+                    src={style_image}
+                    alt="Style Reference" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                    {t.styleLabel || "Style"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Results */}
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-white mb-2 text-center">
+                Results
+              </h3>
+              <div className="space-y-2">
+                {/* Pose Reference */}
+                <div className="aspect-square relative rounded-md overflow-hidden border-2 border-purple-500">
+                  <img 
+                    src={result_1}
+                    alt="V2" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                    {t.poseLabel || "V2"}
+                  </div>
+                </div>
+                
+                {/* Style Reference */}
+                <div className="aspect-square relative rounded-md overflow-hidden border-2 border-pink-500">
+                  <img 
+                    src={result_2}
+                    alt="V1" 
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                    {t.styleLabel || "V1"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-center mt-6">
+            <Link 
+              to="/generator" 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-md shadow-lg transform transition-all hover:translate-y-px"
+            >
+              {t.tryYourselfButton || "Try It Yourself"}
+            </Link>
+          </div>
+        </div>
+      </div>
     </section>
       
       <Footer />

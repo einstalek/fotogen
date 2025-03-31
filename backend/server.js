@@ -52,8 +52,8 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 
 app.post('/api/submit-runpod-job', async (req, res) => {
     try {
-        const { template_url, selfie_urls, prompt, negative_prompt, ip_weight, cn_strength, 
-            control_pose, template_denoise, steps } = req.body;
+        const { template_url, selfie_urls, positive_prompt, negative_prompt, ip_weight, cn_strength, 
+            control_pose, template_denoise, steps, style_image, style_weight, method } = req.body;
 
         if (!template_url || !selfie_urls || selfie_urls.length === 0) {
             return res.status(400).json({ error: 'Missing required parameters' });
@@ -71,13 +71,20 @@ app.post('/api/submit-runpod-job', async (req, res) => {
                 input: {
                     template_image: template_url,
                     selfie_images: selfie_urls,
-                    positive_prompt: prompt,
+                    positive_prompt: positive_prompt,
                     negative_prompt: negative_prompt,
                     ip_weight: ip_weight,
                     cn_strength: cn_strength,
                     control_pose: control_pose,
                     template_denoise: template_denoise,
-                    steps: steps
+                    steps: steps,
+                    style_image: style_image,
+                    style_weight: style_weight,
+                    eyes_blend_factor: 0.7,
+                    image_width: 1024,
+                    image_height: 1024,
+                    upscale_value: 1.3,
+                    method: method
                 }
             })
         };

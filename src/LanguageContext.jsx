@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import i18n from 'i18next';
 
 // Create the Language Context
 const LanguageContext = createContext();
@@ -11,9 +12,10 @@ export function LanguageProvider({ children }) {
     return savedLanguage || 'en';
   });
 
-  // Update localStorage when language changes
+  // Update localStorage and i18next when language changes
   useEffect(() => {
     localStorage.setItem('preferredLanguage', language);
+    i18n.changeLanguage(language);
   }, [language]);
 
   // Context value to be provided
