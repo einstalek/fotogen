@@ -289,6 +289,9 @@ const usePortraitGenerator = (templateOptions = []) => {
         templateUrl = selectedTemplate.url;
       }
 
+      console.log(templateOptions);
+      console.log(selectedTemplate);
+
       if (!templateUrl) {
         throw new Error('Invalid template selected');
       }
@@ -313,7 +316,7 @@ const usePortraitGenerator = (templateOptions = []) => {
         style_weight: styleImage ? styleWeight : 0,
         method: modelVersion
       };
-      console.log('Request body:', requestBody); // Debug log
+      // console.log('Request body:', requestBody); // Debug log
 
       const response = await fetch(`${backendURI}/api/submit-runpod-job`, {
         method: 'POST',
