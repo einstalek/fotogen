@@ -57,7 +57,7 @@ const TemplateSelector = ({
         {/* Scrollable container */}
         <div 
           id="template-scroller"
-          className="flex gap-3 overflow-x-auto py-2 px-4 scrollbar-hide snap-x"
+          className="flex gap-5 overflow-x-auto py-2 px-4 scrollbar-hide snap-x"
           style={{ 
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',

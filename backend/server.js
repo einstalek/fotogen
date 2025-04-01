@@ -5,14 +5,14 @@ const dotenv = require('dotenv');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
 dotenv.config();
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-
 app.use(express.json());
 
 const s3Client = new S3Client({
@@ -134,6 +134,79 @@ app.get('/api/check-runpod-job/:id', async (req, res) => {
         res.status(500).json({ error: "Failed to check job status", details: error.message });
     }
 });
+
+
+// Add this endpoint to your server.js
+app.post('/api/process-payment', async (req, res) => {
+    try {
+      const { paymentMethodId, amount } = req.body;
+      
+      if (!paymentMethodId || !amount) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Missing required parameters' 
+        });
+      }
+  
+      // Get the frontend origin for the return URL
+      const origin = req.headers.origin || 'http://localhost:5173';
+      const returnUrl = `${origin}/donate`;
+  
+      // Convert amount to cents (Stripe uses smallest currency unit)
+      const amountInCents = Math.round(amount * 100);
+      
+      // Create payment intent with redirect support
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amountInCents,
+        currency: 'usd',
+        payment_method: paymentMethodId,
+        confirm: true,
+        return_url: returnUrl, // URL to return to after authentication
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'always' // Allow redirects for 3D Secure etc.
+        },
+        description: `Donation of $${amount}`,
+        metadata: {
+          donation_amount: amount.toString()
+        }
+      });
+      
+      // Check payment status - ensure we only send one response
+      if (paymentIntent.status === 'succeeded') {
+        // Payment completed successfully without additional authentication
+        return res.json({ 
+          success: true, 
+          paymentIntentId: paymentIntent.id 
+        });
+      } else if (paymentIntent.status === 'requires_action' && 
+                paymentIntent.next_action && 
+                paymentIntent.next_action.type === 'redirect_to_url') {
+        // Payment requires 3D Secure or other redirect
+        return res.json({
+          success: false,
+          requires_action: true,
+          redirect_url: paymentIntent.next_action.redirect_to_url.url,
+          payment_intent_id: paymentIntent.id
+        });
+      } else {
+        // Some other status
+        return res.json({ 
+          success: false, 
+          status: paymentIntent.status,
+          error: 'Payment requires additional steps'
+        });
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      
+      // Send a clean error message to the client
+      return res.status(500).json({ 
+        success: false, 
+        error: error.message || 'Payment processing failed'
+      });
+    }
+  });
 
 
 if (process.env.NODE_ENV === 'production') {

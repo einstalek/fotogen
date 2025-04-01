@@ -9,6 +9,7 @@ import CropInterface from './CropInterface';
 import usePortraitGenerator from '../hooks/usePortraitGenerator';
 import templateOptions from './templateOptions';
 import StyleImageSelector from './StyleImageSelector';
+import Footer from './Footer';
 
 const PortraitGenerator = () => {
   const { t } = useTranslation();
