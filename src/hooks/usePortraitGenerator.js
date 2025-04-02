@@ -9,8 +9,8 @@ const usePortraitGenerator = (templateOptions = []) => {
   const [uploadedUrls, setUploadedUrls] = useState({}); // Cache for uploaded URLs
   const [prompt, setPrompt] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
-  const [resemblance, setResemblance] = useState(1.3);
-  const [strength, setStrength] = useState(0.2);
+  const [resemblance, setResemblance] = useState(1.1);
+  const [strength, setStrength] = useState(0.15);
   const [steps, setSteps] = useState(11);
   const [usePoseControl, setUsePoseControl] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate);
