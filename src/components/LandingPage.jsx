@@ -263,7 +263,7 @@ const LandingPage = () => {
           {/* Results */}
           <div className="space-y-2">
             <h3 className="text-lg font-bold text-white mb-2 text-center">
-              Results
+              {t.resultsLabel || "Results"}
             </h3>
             <div className="space-y-2">
               {/* Pose Reference */}
@@ -274,7 +274,7 @@ const LandingPage = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                  {t.poseLabel || "V2"}
+                  V2
                 </div>
               </div>
               
@@ -286,7 +286,7 @@ const LandingPage = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                  {t.styleLabel || "V1"}
+                  V1
                 </div>
               </div>
             </div>
