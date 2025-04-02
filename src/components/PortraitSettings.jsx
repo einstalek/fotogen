@@ -176,13 +176,13 @@ const PortraitSettings = ({
                   <Tooltip text={t('stepsTip')} />
                 </label>
                 <span className="text-xs bg-purple-500/30 px-3 py-1 rounded-full text-white">
-                  {steps <= 13 ? t('stepsScaleStart') : steps <= 16 ? t('stepsScaleLeft') : t('stepsScaleRight')}
+                  {steps <= 7 ? t('stepsScaleStart') : steps <= 12 ? t('stepsScaleLeft') : t('stepsScaleRight')}
                 </span>
               </div>
               <input
                 type="range"
-                min="11"
-                max="19"
+                min="5"
+                max="15"
                 step="1"
                 value={steps}
                 onChange={(e) => setSteps(parseInt(e.target.value))}

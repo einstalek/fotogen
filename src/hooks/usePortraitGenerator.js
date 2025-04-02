@@ -11,7 +11,7 @@ const usePortraitGenerator = (templateOptions = []) => {
   const [negativePrompt, setNegativePrompt] = useState('');
   const [resemblance, setResemblance] = useState(1.1);
   const [strength, setStrength] = useState(0.15);
-  const [steps, setSteps] = useState(11);
+  const [steps, setSteps] = useState(7);
   const [usePoseControl, setUsePoseControl] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate);
   const [customTemplate, setCustomTemplate] = useState(null);
@@ -361,7 +361,8 @@ const usePortraitGenerator = (templateOptions = []) => {
           result = statusData.output.map(url => url.split('?')[0]);
           break;
         } else if (statusData.status === 'FAILED') {
-          throw new Error('Job failed: ' + (statusData.error || 'Unknown error'));
+          // throw new Error('Job failed: ' + (statusData.error || 'Unknown error'));
+          throw new Error('Job failed due to high load. Try again!');
         }
         
         // Calculate progress based on elapsed time
