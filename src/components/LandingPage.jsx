@@ -34,8 +34,8 @@ const LandingPage = () => {
   const selfie_2 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/NWEYEZHCGPFJ5TC9-20250331_155800.webp";
   const style_image = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/chill+(1).webp";
   const pose_image = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/3U45EX4YLSUPE6IU0VUQL5WVK9JGUA-20250330_202710.webp";
-  const result_1 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/7YKATDB4RFQV9EUUBKN91K3I3GU51W-20250331_160307.webp";
-  const result_2 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/H426MIBPCSL1JDNWEYEZHCGPFJ5TC9-20250331_155800.webp";
+  const result_1 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/H3DXK1NWMUK64M2SL3KXVZ0BFSISPU-20250402_124920.webp";
+  const result_2 = "https://ai-portrait.s3.eu-central-1.amazonaws.com/input/TGOJYGA39M1S12ST8I0JANKA67T0N4-20250402_130010.webp";
   const shuffledIndices = getShuffledIndices(3);
 
   return (

@@ -99,7 +99,7 @@ export const translations = {
       clearGallery: "Clear all",
 
       modelVersionTitle: "Choose the model version",
-      modelVersionTip: "V1 is more grainy and detailed; V2 is more smooth",
+      modelVersionTip: "V1 is more detailed; V2 is more smooth",
       
       presetTitle: "Available Presets",
       presetCustom: "Default",
