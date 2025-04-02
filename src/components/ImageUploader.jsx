@@ -52,7 +52,7 @@ const ImageUploader = ({
       <div className="flex items-center mb-4">
         <h3 className="text-xl font-bold text-white mb-4">
           1. {t('uploadPhotos')}
-          <Tooltip text={t('uploadPhotosTip')} />
+          {/* <Tooltip text={t('uploadPhotosTip')} /> */}
         </h3>
       </div>
 

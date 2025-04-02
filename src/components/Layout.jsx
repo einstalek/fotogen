@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+// import { useTranslation } from 'react-i18next';
 import { Camera, Menu, X } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 
+import { useLanguage } from '../LanguageContext';
+import { translations } from '../translations';
+
 const Layout = ({ children }) => {
-  const { t } = useTranslation();
+  const { language } = useLanguage();
+  const t = translations[language];
+  // const { t } = useTranslation();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -42,7 +47,7 @@ const Layout = ({ children }) => {
                     : 'text-purple-200 hover:text-white'
                 }`}
               >
-                {t('home')}
+                {t.home}
               </Link>
               <Link
                 to="/generator"
@@ -52,7 +57,7 @@ const Layout = ({ children }) => {
                     : 'text-purple-200 hover:text-white'
                 }`}
               >
-                {t('createPortrait')}
+                {t.createPortrait}
               </Link>
               <Link
                 to="/donate"
@@ -62,7 +67,7 @@ const Layout = ({ children }) => {
                     : 'text-purple-200 hover:text-white'
                 }`}
               >
-                Donate
+                {t.donate || "Donate"}
               </Link>
 
               {/* Language Selector */}
@@ -95,7 +100,7 @@ const Layout = ({ children }) => {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t('home')}
+                {t.home}
               </Link>
               <Link
                 to="/generator"
@@ -106,8 +111,8 @@ const Layout = ({ children }) => {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t('createPortrait')}
-              </Link>
+                {t.createPortrait}
+              </Link> 
               <Link
                 to="/donate"
                 className={`block py-2 px-4 text-base font-medium rounded-md ${
@@ -117,7 +122,7 @@ const Layout = ({ children }) => {
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Donate
+                {t.donate}
               </Link>
             </div>
           </div>

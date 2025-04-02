@@ -3,6 +3,9 @@ import React from 'react';
 import { Plus, X } from 'lucide-react';
 import Tooltip from './Tooltip';
 
+import { useLanguage } from '../LanguageContext';
+import { translations } from '../translations';
+
 const StyleImageSelector = ({
   styleImage,
   setStyleImage,
@@ -10,14 +13,16 @@ const StyleImageSelector = ({
   setStyleWeight,
   styleImageInputRef,
   handleStyleImageUpload,
-  removeStyleImage,
-  t
+  removeStyleImage
 }) => {
+  const { language } = useLanguage();
+  const t = translations[language];
+
   return (
     <div className="mb-5">
       <div className="flex items-center mb-4">
-        <h3 className="text-xl font-bold text-white mb-4">3. {t('selectStyle')}
-        <Tooltip text={t('selectStyleTip')} />
+        <h3 className="text-xl font-bold text-white mb-4">3. {t.selectStyle}
+        <Tooltip text={t.selectStyleTip} />
         </h3>
       </div>
 
@@ -32,7 +37,7 @@ const StyleImageSelector = ({
               <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-2">
                 <Plus className="w-6 h-6 text-purple-300" />
               </div>
-              <p className="text-white text-sm font-medium">{t('uploadStyle')}</p>
+              <p className="text-white text-sm font-medium">{t.uploadStyle}</p>
               <input 
                 type="file"
                 accept="image/*"
@@ -47,7 +52,7 @@ const StyleImageSelector = ({
             <div className="relative w-52">
               <img 
                 src={styleImage.preview} 
-                alt={t('styleImage')}
+                alt={t.styleImage}
                 className="w-52 h-52 object-cover rounded-lg"
               />
               <button 
@@ -70,8 +75,8 @@ const StyleImageSelector = ({
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
               />
               <div className="flex justify-between text-xs text-purple-300 mt-1">
-                <span>{t('lessStyle')}</span>
-                <span>{t('moreStyle')}</span>
+                <span>{t.lessStyle}</span>
+                <span>{t.moreStyle}</span>
               </div>
             </div>
           </div>
