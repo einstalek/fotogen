@@ -1,6 +1,11 @@
 // Define template options once in your component or in a separate file
 const templateOptions = [
     {
+      id: 'alex',
+      url: 'https://ai-portrait.s3.eu-central-1.amazonaws.com/input/VptheWnQHT.webp',
+      name: 'Alex'
+    },
+    {
       id: 'tanguy',
       url: 'https://ai-portrait.s3.eu-central-1.amazonaws.com/input/MWBXNEV48Z04SVXGYR0HPVCFZMMR57-20250301_1125391024.webp',
       name: 'Tanguy'
@@ -13,11 +18,6 @@ const templateOptions = [
     {id: 'collin',
       url: 'https://ai-portrait.s3.eu-central-1.amazonaws.com/input/UMTMHM2C4FYDVI7PSU5MXK6K0OZEYL-20250401_114657.webp',
       name: 'Collin'
-    },
-    {
-      id: 'alex',
-      url: 'https://ai-portrait.s3.eu-central-1.amazonaws.com/input/VptheWnQHT.webp',
-      name: 'Alex'
     },
     {
       id: 'nika',

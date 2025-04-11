@@ -9,6 +9,15 @@ dotenv.config();
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+const admin = require('firebase-admin');
+if (!admin.apps.length) {
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || '{}');
+  
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -26,6 +35,23 @@ const s3Client = new S3Client({
 const BUCKET_NAME = process.env.AWS_BUCKET;
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+function calculateCredits(amount) {
+  // Base rate: $5 = 200 credits
+  let credits = 0;
+  
+  if (amount >= 5 && amount < 10) {
+    credits = Math.floor((amount / 5) * 200);
+  } else if (amount >= 10 && amount < 15) {
+    credits = Math.floor((amount / 5) * 210);
+  } else if (amount >= 15 && amount < 20) {
+    credits = Math.floor((amount / 5) * 215);
+  } else if (amount >= 20) {
+    credits = Math.floor((amount / 5) * 220);
+  }
+  
+  return credits;
+}
 
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
   try {
@@ -138,75 +164,124 @@ app.get('/api/check-runpod-job/:id', async (req, res) => {
 
 // Add this endpoint to your server.js
 app.post('/api/process-payment', async (req, res) => {
-    try {
-      const { paymentMethodId, amount } = req.body;
-      
-      if (!paymentMethodId || !amount) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Missing required parameters' 
-        });
-      }
-  
-      // Get the frontend origin for the return URL
-      const origin = req.headers.origin || 'http://localhost:5173';
-      const returnUrl = `${origin}/donate`;
-  
-      // Convert amount to cents (Stripe uses smallest currency unit)
-      const amountInCents = Math.round(amount * 100);
-      
-      // Create payment intent with redirect support
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: amountInCents,
-        currency: 'usd',
-        payment_method: paymentMethodId,
-        confirm: true,
-        return_url: returnUrl, // URL to return to after authentication
-        automatic_payment_methods: {
-          enabled: true,
-          allow_redirects: 'always' // Allow redirects for 3D Secure etc.
-        },
-        description: `Donation of $${amount}`,
-        metadata: {
-          donation_amount: amount.toString()
-        }
-      });
-      
-      // Check payment status - ensure we only send one response
-      if (paymentIntent.status === 'succeeded') {
-        // Payment completed successfully without additional authentication
-        return res.json({ 
-          success: true, 
-          paymentIntentId: paymentIntent.id 
-        });
-      } else if (paymentIntent.status === 'requires_action' && 
-                paymentIntent.next_action && 
-                paymentIntent.next_action.type === 'redirect_to_url') {
-        // Payment requires 3D Secure or other redirect
-        return res.json({
-          success: false,
-          requires_action: true,
-          redirect_url: paymentIntent.next_action.redirect_to_url.url,
-          payment_intent_id: paymentIntent.id
-        });
-      } else {
-        // Some other status
-        return res.json({ 
-          success: false, 
-          status: paymentIntent.status,
-          error: 'Payment requires additional steps'
-        });
-      }
-    } catch (error) {
-      console.error('Error processing payment:', error);
-      
-      // Send a clean error message to the client
-      return res.status(500).json({ 
+  try {
+    const { paymentMethodId, amount, userId } = req.body;
+    
+    if (!paymentMethodId || !amount) {
+      return res.status(400).json({ 
         success: false, 
-        error: error.message || 'Payment processing failed'
+        error: 'Missing required parameters' 
       });
     }
-  });
+
+    // Get the frontend origin for the return URL
+    const origin = req.headers.origin || 'http://localhost:5173';
+    const returnUrl = `${origin}/donate`;
+
+    // Convert amount to cents (Stripe uses smallest currency unit)
+    const amountInCents = Math.round(amount * 100);
+    
+    // Create payment intent with redirect support
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: 'usd',
+      payment_method: paymentMethodId,
+      confirm: true,
+      return_url: returnUrl, // URL to return to after authentication
+      automatic_payment_methods: {
+        enabled: true,
+        allow_redirects: 'always' // Allow redirects for 3D Secure etc.
+      },
+      description: `Donation of $${amount}`,
+      metadata: {
+        donation_amount: amount.toString(),
+        userId: userId || 'anonymous'
+      }
+    });
+    
+    // Check payment status - ensure we only send one response
+    if (paymentIntent.status === 'succeeded') {
+      // Payment completed successfully without additional authentication
+      let addedCredits = null;
+      
+      // Add credits to user account if userId is provided
+      if (userId) {
+        // Calculate credits using the tiered system
+        const creditsToAdd = calculateCredits(amount);
+        
+        // Get a reference to the user document
+        const userRef = admin.firestore().collection('users').doc(userId);
+        
+        // Update user's credits in Firestore
+        await admin.firestore().runTransaction(async (transaction) => {
+          const userDoc = await transaction.get(userRef);
+          
+          if (!userDoc.exists) {
+            // If user document doesn't exist, create it
+            transaction.set(userRef, {
+              credits: creditsToAdd,
+              lastDonation: admin.firestore.FieldValue.serverTimestamp()
+            });
+          } else {
+            // Update existing user document
+            const userData = userDoc.data();
+            const currentCredits = userData.credits || 0;
+            
+            transaction.update(userRef, {
+              credits: currentCredits + creditsToAdd,
+              lastDonation: admin.firestore.FieldValue.serverTimestamp()
+            });
+          }
+          
+          // Record the transaction
+          const transactionRef = admin.firestore().collection('transactions').doc(`${userId}_${Date.now()}`);
+          transaction.set(transactionRef, {
+            userId: userId,
+            amount: amount,
+            creditsAdded: creditsToAdd,
+            paymentIntentId: paymentIntent.id,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+            type: 'donation'
+          });
+        });
+        
+        addedCredits = creditsToAdd;
+        console.log(`Added ${creditsToAdd} credits to user ${userId}`);
+      }
+      
+      return res.json({ 
+        success: true, 
+        paymentIntentId: paymentIntent.id,
+        addedCredits: addedCredits
+      });
+    } else if (paymentIntent.status === 'requires_action' && 
+              paymentIntent.next_action && 
+              paymentIntent.next_action.type === 'redirect_to_url') {
+      // Payment requires 3D Secure or other redirect
+      return res.json({
+        success: false,
+        requires_action: true,
+        redirect_url: paymentIntent.next_action.redirect_to_url.url,
+        payment_intent_id: paymentIntent.id
+      });
+    } else {
+      // Some other status
+      return res.json({ 
+        success: false, 
+        status: paymentIntent.status,
+        error: 'Payment requires additional steps'
+      });
+    }
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    
+    // Send a clean error message to the client
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message || 'Payment processing failed'
+    });
+  }
+});
 
 
 if (process.env.NODE_ENV === 'production') {

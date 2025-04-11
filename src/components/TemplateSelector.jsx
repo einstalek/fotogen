@@ -10,12 +10,6 @@ const TemplateSelector = ({
   setCustomTemplate,
   customTemplateInputRef,
   handleTemplateUpload,
-  isCropping,
-  setIsCropping,
-  cropImage,
-  setCropImage,
-  handleCropConfirm,
-  cancelCrop,
   t
 }) => {
   // Helper function to find a template by ID
@@ -35,10 +29,6 @@ const TemplateSelector = ({
         <h3 className="text-xl font-bold text-white mb-4">2. {t('selectPose')}
           <Tooltip text={t('selectPoseTip')} />
         </h3>
-        {/* <h3 className="text-sm font-medium text-purple-200">
-          {t('selectPose')}
-          <Tooltip text={t('selectPoseTip')} />
-        </h3> */}
       </div>
 
       {/* Scrollable container with arrows */}

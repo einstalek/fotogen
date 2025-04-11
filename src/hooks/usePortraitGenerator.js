@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 
+import { doc, updateDoc, increment, getDoc } from "firebase/firestore";
+import { db } from '../components/firebase';
+import { useAuth } from '../components/AuthContext';
+
 const usePortraitGenerator = (templateOptions = []) => {
   const defaultTemplate = templateOptions && templateOptions.length > 0 
     ? templateOptions[0] 
@@ -10,13 +14,13 @@ const usePortraitGenerator = (templateOptions = []) => {
   const [prompt, setPrompt] = useState('');
   const [negativePrompt, setNegativePrompt] = useState('');
   const [resemblance, setResemblance] = useState(1.1);
-  const [strength, setStrength] = useState(0.15);
+  const [strength, setStrength] = useState(0.1);
   const [steps, setSteps] = useState(7);
   const [usePoseControl, setUsePoseControl] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState(defaultTemplate);
   const [customTemplate, setCustomTemplate] = useState(null);
   const [styleImage, setStyleImage] = useState(null);
-  const [styleWeight, setStyleWeight] = useState(0.7); // Default weight
+  const [styleWeight, setStyleWeight] = useState(0.8); // Default weight
   const styleImageInputRef = useRef(null);
   const [modelVersion, setModelVersion] = useState(0);
   const [generatedImages, setGeneratedImages] = useState(() => {
@@ -32,6 +36,8 @@ const usePortraitGenerator = (templateOptions = []) => {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
 
+  const { user, credits, refreshCredits } = useAuth();
+
   let backendURI;
   if (import.meta.env.DEV) {
     backendURI = import.meta.env.VITE_BACKEND_URI;
@@ -39,6 +45,15 @@ const usePortraitGenerator = (templateOptions = []) => {
   else {
     backendURI = '';  // Empty string for relative paths
   }
+
+  let singleRunCost;
+  if (import.meta.env.DEV) {
+    singleRunCost = import.meta.env.VITE_SINGLE_RUN_CREDITS;
+  } 
+  else {
+    singleRunCost = 30;
+  }
+
 
   // Refs
   const fileInputRef = useRef(null);
@@ -66,6 +81,31 @@ const usePortraitGenerator = (templateOptions = []) => {
     }
   };
 
+  const burnCredits = async (amount) => {
+    if (!user) return;
+  
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        credits: increment(-amount)
+      });
+      
+      // Get the updated document to verify and update local state
+      const updatedDoc = await getDoc(userRef);
+      const updatedCredits = updatedDoc.data()?.credits;
+      
+      // Update local credits state if refreshCredits function exists in AuthContext
+      if (typeof refreshCredits === 'function') {
+        refreshCredits();
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error updating credits:", error);
+      return false;
+    }
+  };
+
   const handleDrop = (event) => {
     event.preventDefault();
     const files = Array.from(event.dataTransfer.files);
@@ -89,13 +129,14 @@ const usePortraitGenerator = (templateOptions = []) => {
       setStyleImage({ 
         id: `style-${Date.now()}`,
         file, 
-        preview 
+        preview,
+        isPredefined: false
       });
     }
   };
   
   const removeStyleImage = () => {
-    if (styleImage?.preview) {
+    if (styleImage?.preview && !styleImage.isPredefined) {
       URL.revokeObjectURL(styleImage.preview);
     }
     setStyleImage(null);
@@ -158,15 +199,6 @@ const usePortraitGenerator = (templateOptions = []) => {
       setSelectedTemplate('custom');
     }
   };
-
-  // const handleCropConfirm = () => {
-  //   if (cropImage) {
-  //     // Here you would implement the actual cropping logic
-  //     // For now, we'll just close the cropping interface
-  //     setIsCropping(false);
-  //     setCropImage(null);
-  //   }
-  // };
 
   // Update only the handleCropConfirm function in your parent component
   const handleCropConfirm = () => {
@@ -262,7 +294,29 @@ const usePortraitGenerator = (templateOptions = []) => {
 
   const generatePortrait = async () => {
     if (uploadedImages.length === 0 || !selectedTemplate) {
-      setError('Please upload images and select a template');
+      if (uploadedImages.length === 0) {
+        setError('upload_required');
+      } else {
+        setError('template_required');
+      }
+      return;
+    }
+
+    // Check if user is logged in and has enough credits
+    if (!user) {
+      // Set a special error type that we can check for in the UI
+      setError('auth_required');
+      // Scroll to error message if needed
+      if (generateButtonRef.current) {
+        generateButtonRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const GENERATION_COST = 30; // Credits needed per generation
+    
+    if (credits < GENERATION_COST) {
+      setError(`credits_insufficient:${GENERATION_COST}:${credits}`);
       return;
     }
 
@@ -303,7 +357,11 @@ const usePortraitGenerator = (templateOptions = []) => {
 
       let styleImageUrl = null;
       if (styleImage) {
-        styleImageUrl = await uploadImageToServer(styleImage.file);
+        if (styleImage.isPredefined) {
+          styleImageUrl = styleImage.preview;
+        } else if (styleImage.file) {
+          styleImageUrl = await uploadImageToServer(styleImage.file);
+        }
       }
 
       // Submit job to backend
@@ -321,7 +379,8 @@ const usePortraitGenerator = (templateOptions = []) => {
         style_weight: styleImage ? styleWeight : 0,
         method: modelVersion
       };
-      // console.log('Request body:', requestBody); // Debug log
+
+      await burnCredits(singleRunCost);
 
       const response = await fetch(`${backendURI}/api/submit-runpod-job`, {
         method: 'POST',
@@ -330,7 +389,7 @@ const usePortraitGenerator = (templateOptions = []) => {
         },
         body: JSON.stringify(requestBody),
       });
-
+      
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || 'Generation failed');

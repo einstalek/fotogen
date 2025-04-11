@@ -58,7 +58,7 @@ export const translations = {
       contact: "Contact",
       
       // Generator Page (restored translations)
-      selectPose: "Pose control image",
+      selectPose: "Pose image",
       selectPoseTip: "This image defines your pose and general composition",
       uploadPhotos: "Your photos",
       uploadPhotosTip: "Drop up to 9 of your photos here",
@@ -116,7 +116,7 @@ export const translations = {
       cancel: "Cancel",
       confirm: "Confirm",
 
-      selectStyle: "Style control image (optional)",
+      selectStyle: "Style image (optional)",
       selectStyleTip: "Upload an image to control the style of your portrait",
       uploadStyle: "Anything goes",
       uploadStyleTip: "This will influence colors and stylistic elements",

@@ -7,21 +7,24 @@ import PortraitGenerator from './components/PortraitGenerator';
 import './index.css';
 import Footer from './components/Footer';
 import DonationsPage from './components/DonationsPage';
+import { AuthProvider } from './components/AuthContext';
 
 function App() {
   return (
-    <LanguageProvider>
-      <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/generator" element={<PortraitGenerator />} />
-            <Route path="/donate" element={<DonationsPage />} />
-          </Routes>
-          <Footer />
-        </Layout>
-      </Router>
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <Router>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/generator" element={<PortraitGenerator />} />
+              <Route path="/donate" element={<DonationsPage />} />
+            </Routes>
+            <Footer />
+          </Layout>
+        </Router>
+      </LanguageProvider>
+    </AuthProvider>
   );
 }
 

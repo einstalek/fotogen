@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import TemplateSelector from './TemplateSelector';
 import ImageUploader from './ImageUploader';
@@ -9,12 +9,17 @@ import CropInterface from './CropInterface';
 import usePortraitGenerator from '../hooks/usePortraitGenerator';
 import templateOptions from './templateOptions';
 import StyleImageSelector from './StyleImageSelector';
-import Footer from './Footer';
+import ErrorDisplay from './ErrorDisplay';
+import { Link } from 'react-router-dom';
+import ToastNotification from './ToastNotification';
 
 const PortraitGenerator = () => {
   const { t } = useTranslation();
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
-  const [activePreset, setActivePreset] = useState('professional');
+  const [showProcessingToast, setShowProcessingToast] = useState(false);
+  const [toastManuallyDismissed, setToastManuallyDismissed] = useState(false);
+  // const [activePreset, setActivePreset] = useState('professional');
+  const clearError = () => setError(null);
 
   const {
     // State
@@ -78,6 +83,30 @@ const PortraitGenerator = () => {
     setModelVersion
   } = usePortraitGenerator(templateOptions);
 
+  useEffect(() => {
+    // Only show toast when generation starts AND it hasn't been manually dismissed
+    if (isGenerating && !toastManuallyDismissed) {
+      setShowProcessingToast(true);
+    } else if (!isGenerating && showProcessingToast) {
+      // When generation completes, dismiss after delay
+      const dismissTimer = setTimeout(() => {
+        setShowProcessingToast(false);
+        // Reset the manual dismissal flag when generation is complete
+        setToastManuallyDismissed(false);
+      }, 3000);
+      
+      return () => clearTimeout(dismissTimer);
+    }
+  }, [isGenerating, showProcessingToast, toastManuallyDismissed]);
+
+  const handleToastClose = () => {
+    setShowProcessingToast(false);
+    // Set flag to prevent toast from reappearing during the same generation
+    if (isGenerating) {
+      setToastManuallyDismissed(true);
+    }
+  };
+
   const applyPreset = (preset) => {
     setActivePreset(preset);
     switch (preset) {
@@ -115,6 +144,13 @@ const PortraitGenerator = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <ToastNotification
+        show={showProcessingToast}
+        message="Please don't refresh the page while your portrait is being generated"
+        type="warning"
+        onClose={handleToastClose}
+      />
+
       {/* Image Upload */}
       <div className="mb-8">
         <ImageUploader
@@ -231,11 +267,14 @@ const PortraitGenerator = () => {
       )}
 
       {/* Error Message */}
-      {error && (
+      {/* {error && (
         <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-lg mb-8">
           {error}
         </div>
-      )}
+      )} */}
+      <ErrorDisplay error={error} clearError={clearError} />
+
+
 
       {/* Crop Interface */}
       <CropInterface

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Camera, Image, Sliders, Upload } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { translations } from '../translations';
-import Footer from './Footer';
 
 const getShuffledIndices = (length) => {
     const indices = Array.from({ length }, (_, i) => i); // Create array [0, 1, 2, ..., length-1]
@@ -304,8 +303,6 @@ const LandingPage = () => {
       </div>
     </div>
     </section>
-
-      {/* <Footer /> */}
     </div>
   );
 };
