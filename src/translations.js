@@ -61,7 +61,7 @@ export const translations = {
       selectPose: "Pose image",
       selectPoseTip: "This image defines your pose and general composition",
       uploadPhotos: "Your photos",
-      uploadPhotosTip: "Drop up to 9 of your photos here",
+      uploadPhotosTip: "Drop your photos here (4-9 recommended)",
       uploadPhotosTipAdd: "or click to browse",
       removeAll: "Remove All",
       generatePortrait: "Generate Portrait",
