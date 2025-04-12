@@ -247,11 +247,11 @@ const DonationsPage = () => {
               <h1 className="text-4xl md:text-4xl font-bold text-white mb-6 leading-tight">
                 {t.supportTitle || "Support This Project"}
               </h1>
-              {user && (
+              {/* {user && (
                 <p className="text-lg text-purple-200 mb-6">
                   Your current credits: <span className="font-bold text-white">{credits || 0}</span>
                 </p>
-              )}              
+              )}               */}
             </div>
 
             {isRedirecting ? (
