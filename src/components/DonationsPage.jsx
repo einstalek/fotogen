@@ -12,7 +12,7 @@ import { useLocation } from 'react-router-dom';
 // Fix for Stripe key loading
 // In Vite, environment variables need to be prefixed with VITE_
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-console.log('Stripe key status:', stripeKey ? 'Found' : 'Not found');
+// console.log('Stripe key status:', stripeKey ? 'Found' : 'Not found');
 
 let backendURI;
 if (import.meta.env.DEV) {
@@ -64,19 +64,27 @@ const DonationsPageWithStripe = () => {
 
 // Tiered credit calculation function with better value at higher tiers
 const calculateCredits = (amount) => {
-  // Base rate: $5 = 200 credits
-  // Add bonus credits for higher donation amounts
-  let credits = 0;
+  // Base conversion rate: $1 = 100 credits
+  const baseRate = 100;
+  let bonusPercentage = 0;
   
-  if (amount >= 5 && amount < 10) {
-    credits = Math.floor((amount / 5) * 200);
-  } else if (amount >= 10 && amount < 15) {
-    credits = Math.floor((amount / 5) * 210);
-  } else if (amount >= 15 && amount < 20) {
-    credits = Math.floor((amount / 5) * 215);
-  } else if (amount >= 20) {
-    credits = Math.floor((amount / 5) * 220);
+  // Set bonus percentage based on donation amount
+  if (amount < 2) {
+    bonusPercentage = 0;
+  } else if (amount < 5) {
+    bonusPercentage = 5;
+  } else if (amount < 10) {
+    bonusPercentage = 10;
+  } else if (amount < 15) {
+    bonusPercentage = 15;
+  } else if (amount < 20) {
+    bonusPercentage = 20;
+  } else {
+    bonusPercentage = 20;
   }
+  
+  // Calculate credits with bonus
+  const credits = Math.floor(amount * baseRate * (1 + bonusPercentage / 100));
   
   return credits;
 };
@@ -226,7 +234,7 @@ const DonationsPage = () => {
     }
   };
 
-  const predefinedAmounts = [5, 10, 15, 20];
+  const predefinedAmounts = [2, 5, 10, 20];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -280,13 +288,13 @@ const DonationsPage = () => {
                     {/* Pricing tiers with better visualization */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                       {predefinedAmounts.map((amount) => {
-                        const tier = amount >= 20 ? 'premium' : amount >= 15 ? 'high' : amount >= 10 ? 'mid' : 'base';
+                        const tier = amount >= 20 ? 'premium' : amount >= 10 ? 'high' : amount >= 5 ? 'mid' : 'base';
                         const credits = calculateCredits(amount);
                         const portraits = Math.floor(credits / singleRunCost);
                         const costPerPortrait = calculateCostPerPortrait(amount);
                         const bonusPercentage = 
-                          tier === 'premium' ? '10%' : 
-                          tier === 'high' ? '7.5%' : 
+                          tier === 'premium' ? '20%' : 
+                          tier === 'high' ? '10%' : 
                           tier === 'mid' ? '5%' : '';
                         
                         return (
@@ -345,16 +353,16 @@ const DonationsPage = () => {
                           }}
                           placeholder="Enter amount"
                           className="bg-white/10 border border-white/20 text-white rounded-md py-3 pl-10 pr-4 w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          min="5"
+                          min="1"
                           step="0.01"
                         />
                       </div>
                       
                       {/* Credit calculation display - fixed alignment */}
-                      {customAmount && parseFloat(customAmount) >= 5 && (
+                      {customAmount && parseFloat(customAmount) >= 1 && (
                         <div className="mt-3 px-1 text-purple-300">
                           <p className="text-sm">You'll receive {calculateCredits(parseFloat(customAmount))} credits</p>
-                          <p className="text-sm">~{Math.floor(calculateCredits(parseFloat(customAmount)) / singleRunCost)} portraits at ${calculateCostPerPortrait(parseFloat(customAmount))}/portrait</p>
+                          <p className="text-sm">${calculateCostPerPortrait(parseFloat(customAmount))}/portrait</p>
                         </div>
                       )}
                     </div>
@@ -386,9 +394,9 @@ const DonationsPage = () => {
                   <div className="mt-8">
                     <button
                       type="submit"
-                      disabled={!stripe || !elements || isProcessing || (!donationAmount && !customAmount) || (customAmount && parseFloat(customAmount) < 5)}
+                      disabled={!stripe || !elements || isProcessing || (!donationAmount && !customAmount) || (customAmount && parseFloat(customAmount) < 1)}
                       className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-md shadow-lg transform transition-all ${
-                        (!stripe || !elements || isProcessing || (!donationAmount && !customAmount) || (customAmount && parseFloat(customAmount) < 5)) 
+                        (!stripe || !elements || isProcessing || (!donationAmount && !customAmount) || (customAmount && parseFloat(customAmount) < 1)) 
                           ? 'opacity-50 cursor-not-allowed' 
                           : 'hover:translate-y-px'
                       }`}

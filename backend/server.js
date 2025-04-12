@@ -37,18 +37,27 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 function calculateCredits(amount) {
-  // Base rate: $5 = 200 credits
-  let credits = 0;
+  // Base conversion rate: $1 = 100 credits
+  const baseRate = 100;
+  let bonusPercentage = 0;
   
-  if (amount >= 5 && amount < 10) {
-    credits = Math.floor((amount / 5) * 200);
-  } else if (amount >= 10 && amount < 15) {
-    credits = Math.floor((amount / 5) * 210);
-  } else if (amount >= 15 && amount < 20) {
-    credits = Math.floor((amount / 5) * 215);
-  } else if (amount >= 20) {
-    credits = Math.floor((amount / 5) * 220);
+  // Set bonus percentage based on donation amount
+  if (amount < 2) {
+    bonusPercentage = 0;
+  } else if (amount < 5) {
+    bonusPercentage = 5;
+  } else if (amount < 10) {
+    bonusPercentage = 10;
+  } else if (amount < 15) {
+    bonusPercentage = 15;
+  } else if (amount < 20) {
+    bonusPercentage = 20;
+  } else {
+    bonusPercentage = 20;
   }
+  
+  // Calculate credits with bonus
+  const credits = Math.floor(amount * baseRate * (1 + bonusPercentage / 100));
   
   return credits;
 }
