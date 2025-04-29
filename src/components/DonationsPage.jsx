@@ -27,7 +27,7 @@ let singleRunCost;
     singleRunCost = import.meta.env.VITE_SINGLE_RUN_CREDITS;
   } 
   else {
-    singleRunCost = 30;
+    singleRunCost = 10;
 }
 
 // Only initialize Stripe if we have a key
