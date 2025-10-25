@@ -31,10 +31,10 @@ export const AuthProvider = ({ children }) => {
               email: currentUser.email,
               displayName: currentUser.displayName,
               photoURL: currentUser.photoURL,
-              credits: 100, // Make sure this is included
+              credits: 50, // Make sure this is included
               createdAt: new Date()
             });
-            setCredits(100);
+            setCredits(50);
           }
           
           setUser(currentUser);
